@@ -1,0 +1,5 @@
+<%- @redirects.each do |status, pairs| -%>
+<%-  pairs.each do |redirect| -%>
+Redirect <%= status %> <%= redirect['source'] %> <%= redirect['dest'] %>
+<%-  end -%>
+<%- end -%>

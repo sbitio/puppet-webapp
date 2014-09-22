@@ -1,0 +1,17 @@
+{
+  "name": "sbitio-webapp",
+  "version": "0.1.0",
+  "author": "sbitio",
+  "summary": "Wrapper to create resources that compound webapps",
+  "license": "MIT License",
+  "source": "http://github.com/sbitio/puppet-webapp",
+  "project_page": "https://github.com/sbitio/puppet-webapp",
+  "issues_url": "https://github.com/sbitio/puppet-webapp/issues",
+  "dependencies": [
+    {
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">= 1.0.0"
+    }
+  ]
+}
+
