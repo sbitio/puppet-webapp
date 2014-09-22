@@ -222,7 +222,8 @@ define webapp::instance(
 
     # Merge hosts and filter those with an *.
     $hosts = flatten([$servername, $serveraliases])
-    @@host { $hosts:
+    $real_hosts = difference($hosts, grep($hosts, '\*'))
+    @@host { $real_hosts:
       ensure => $vhost_ensure,
       ip     => '127.0.0.1',
       tag    => $tags,
