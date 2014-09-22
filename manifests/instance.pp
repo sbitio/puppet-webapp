@@ -159,7 +159,7 @@ define webapp::instance(
   $tags           = [],
 ) {
 
-  $ensure_options = [ present, absend ]
+  $ensure_options = [ present, absent ]
 
 ################################################################[ Web Head ]###
   if $vhost_ensure != undef {
