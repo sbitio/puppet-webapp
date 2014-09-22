@@ -74,6 +74,10 @@
 #       - source  : /rt
 #         dest    : "http://example.com/rt"
 #
+# [*logs_enable*]
+#   Boolean indicating whether to enable access and error log for the vhosts.
+#   Default: true.
+#
 # [*vhost_extra*]
 #   String of directives to append to the VirtualHost.
 #
@@ -133,6 +137,7 @@ define webapp::instance(
   $www_ensure     = undef,
   $aliases        = undef,
   $redirects      = {},
+  $vhost_logs     = true,
   $vhost_extra    = '',
 
 # Mysql
@@ -205,6 +210,8 @@ define webapp::instance(
         redirect_source => '/',
         redirect_dest   => "http://${servername_real}",
         redirect_status => 'permanent',
+        access_log      => $logs_enable,
+        error_log       => $logs_enable,
         tag             => $tags,
       }
     }
@@ -219,6 +226,8 @@ define webapp::instance(
       manage_docroot  => false,
       aliases         => $aliases,
       custom_fragment => $custom_fragment,
+      access_log      => $logs_enable,
+      error_log       => $logs_enable,
       tag             => $tags,
     }
 
