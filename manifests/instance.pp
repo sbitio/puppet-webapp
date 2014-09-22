@@ -26,11 +26,20 @@
 # [*port*]
 #   Virtualhost listen port.
 #
+# [*docroot_folder*]
+#   "App" specific part of the virtualhost document root. The full path of the
+#   document root is $docroot_prefix + $docroot_folder + $docroot_suffix.
+#   Default: $servername.
+#
 # [*docroot_prefix*]
-#   .
+#   Prefix of the virtualhost document root. The full path of the
+#   document root is $docroot_prefix + $docroot_folder + $docroot_suffix.
+#   Default: "/var/www".
 #
 # [*docroot_suffix*]
-#   .
+#   Suffix of the virtualhost document root. The full path of the
+#   document root is $docroot_prefix + $docroot_folder + $docroot_suffix.
+#   Default: "current".
 #
 # [*www_ensure*]
 #   Wether to SEO redirect (permanent). Options:
@@ -118,6 +127,7 @@ define webapp::instance(
   $servername     = $name,
   $serveraliases  = [],
   $port           = '80',
+  $docroot_folder = undef,
   $docroot_prefix = '/var/www',
   $docroot_suffix = 'current',
   $www_ensure     = undef,
@@ -159,12 +169,13 @@ define webapp::instance(
     # Upon the deployment strategy the docroot may be a directory or a symlink.
     # We won't ensure anything for the docroot. It is up to the deployment tool.
     # We just ensure the parent directory.
-    $docroot = "${docroot_prefix}/$servername/${docroot_suffix}"
+    $real_docroot_folder = pick($docroot_folder, $servername)
+    $docroot = "${docroot_prefix}/${real_docroot_folder}/${docroot_suffix}"
     $ensure_docroot_parent = $vhost_ensure ? {
       absent  => absent,
       present => directory,
     }
-    @@file {"${docroot_prefix}/$servername":
+    @@file {"${docroot_prefix}/${real_docroot_folder}":
       ensure => $ensure_docroot_parent,
     }
 
