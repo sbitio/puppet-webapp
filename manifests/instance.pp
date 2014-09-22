@@ -213,10 +213,10 @@ define webapp::instance(
 
     if ($type == 'drupal') {
       @@drush::alias { $name:
-        ensure  => $vhost_ensure,
-        uri     => $servername_real,
-        docroot => $docroot,
-        tag     => $tags,
+        ensure => $vhost_ensure,
+        uri    => $servername_real,
+        root   => $docroot,
+        tag    => $tags,
       }
     }
 
