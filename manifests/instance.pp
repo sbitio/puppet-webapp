@@ -137,7 +137,7 @@ define webapp::instance(
   $www_ensure     = undef,
   $aliases        = undef,
   $redirects      = {},
-  $vhost_logs     = true,
+  $logs_enable    = true,
   $vhost_extra    = '',
 
 # Mysql
@@ -170,6 +170,7 @@ define webapp::instance(
     validate_re($servername, '^(?!www\.)', "The webapp::instance servername $servername must not start with www.")
     validate_hash($redirects)
     validate_string($vhost_extra)
+    validate_bool($logs_enable)
 
     # Upon the deployment strategy the docroot may be a directory or a symlink.
     # We won't ensure anything for the docroot. It is up to the deployment tool.
