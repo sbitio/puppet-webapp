@@ -7,6 +7,12 @@
 #
 # === Parameters
 #
+# [*creation_mode*]
+#   Resources creation mode. Specify whether the resources will be created
+#   locally for this node or instead they're created as exported resources.
+#   Valid values: local, exported.
+#   Default: local.
+#
 # [*type*]
 #   Type of web application. Any value is supported. We only recognize: drupal.
 #   In case of drupal, this indicates a drush alias will be declared.
@@ -125,6 +131,7 @@
 # See init.pp for details.
 #
 define webapp::instance(
+  $creation_mode  = 'local',
   $type           = undef,
 # Apache
   $vhost_ensure   = present,
@@ -159,6 +166,18 @@ define webapp::instance(
   $tags           = [],
 ) {
 
+  case $creation_mode {
+    'local': {
+      $prefix = ''
+    }
+    'exported': {
+      $prefix = '@@'
+    }
+    default: {
+      fail("'${creation_mode}' is not a valid value for creation_mode. Valid values: local, exported.")
+    }
+  }
+
   $ensure_options = [ present, absent ]
 
 ################################################################[ Web Head ]###
@@ -181,10 +200,11 @@ define webapp::instance(
       absent  => absent,
       present => directory,
     }
-    @@file {"${docroot_prefix}/${real_docroot_folder}":
+    $file_docroot_params = {
       ensure => $ensure_docroot_parent,
       tag    => $tags,
     }
+    ensure_resource("${prefix}file", "${docroot_prefix}/${real_docroot_folder}", $file_docroot_params)
 
     # Redirect example.com to www.example.com or the inverse, or nothing at all.
     case $www_ensure {
@@ -204,7 +224,7 @@ define webapp::instance(
       }
     }
     if $www_ensure != undef {
-      @@apache::vhost { $servername_source:
+      $apache_vhost_redirector_params = {
         ensure          => $vhost_ensure,
         port            => $port,
         docroot         => $docroot,
@@ -216,11 +236,12 @@ define webapp::instance(
         error_log       => $logs_enable,
         tag             => $tags,
       }
+      ensure_resource("${prefix}apache::vhost", $servername_source, $apache_vhost_redirector_params)
     }
 
     $redirects_fragment = template('webapp/apache/redirects.erb')
     $custom_fragment    = "${redirects_fragment}\n${vhost_extra}"
-    @@apache::vhost { $servername_real:
+    $apache_vhost_params = {
       ensure          => $vhost_ensure,
       serveraliases   => $serveraliases,
       port            => $port,
@@ -232,24 +253,27 @@ define webapp::instance(
       error_log       => $logs_enable,
       tag             => $tags,
     }
+    ensure_resource("${prefix}apache::vhost", $servername_real, $apache_vhost_params)
 
     if ($type == 'drupal') {
-      @@drush::alias { $name:
+      $drush_alias = {
         ensure => $vhost_ensure,
         uri    => $servername_real,
         root   => $docroot,
         tag    => $tags,
       }
+      ensure_resource("${prefix}drush::alias", $name, $drush_alias)
     }
 
     # Merge hosts and filter those with an *.
     $hosts = flatten([$servername, $serveraliases])
     $real_hosts = difference($hosts, grep($hosts, '\*'))
-    @@host { $real_hosts:
+    $real_hosts_params = {
       ensure => $vhost_ensure,
       ip     => '127.0.0.1',
       tag    => $tags,
     }
+    ensure_resource("${prefix}host", $real_hosts, $real_hosts_params)
   }
 
 ###########################################################[ Load Balancer ]###
@@ -267,13 +291,14 @@ define webapp::instance(
     validate_slength($db_name, 64)
     validate_slength($real_db_user, 16)
 
-    @@mysql::db { $db_name:
+    $mysql_db_params = {
       ensure   => $db_ensure,
       user     => $real_db_user,
       password => $real_db_pass,
       host     => '%',
       tag      => $tags,
     }
+    ensure_resource("${prefix}mysql::db", $db_name, $mysql_db_params)
   }
 
 #####################################################################[ Solr ]###
@@ -282,7 +307,7 @@ define webapp::instance(
       fail("'${solr_ensure}' is not a valid value for solr_ensure. Valid values: ${ensure_options} and undef.")
     }
 
-    @@solr::instance { $solr_name:
+    $solr_instance_params = {
       ensure         => $solr_ensure,
       version        => $solr_version,
       skel_src       => $solr_skel,
@@ -292,6 +317,7 @@ define webapp::instance(
       war_src        => $solr_war,
       tag            => $tags,
     }
+    ensure_resource("${prefix}solr::instance", $solr_name, $solr_instance_params)
   }
 }
 

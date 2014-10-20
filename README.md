@@ -2,20 +2,17 @@
 
 Wrapper to create resources that compound webapps.
 
-It defines exported resources that are realized by
-the nodes in an infrastructure.
+Resources can be declared as local resources or exported ones.
 
-Exported resources are tagged with node's FQDN and
-realized upon the presence of the classes that
-implements the resources.
+Exported resources are tagged with node's FQDN and realized in
+those nodes upon the presence of the classes that implements
+the resources.
+
 
 ## Dependencies
 
-This module does not have any hard dependency (but stdlib)
-because it works across the infrastructure.
-
-It will realize resources in the nodes matching tagged FQDNs
-that include the relates classes / resource types.
+This module does not have any hard dependency (but stdlib) so
+it can work infrastructure-wide.
 
 These are the modules Webapp works with:
 
@@ -110,7 +107,7 @@ MIT License, see LICENSE file
 
 ## Contact
 
-Use contact form on http://sbitmedia.com
+Use contact form on http://sbit.io
 
 ## Support
 
