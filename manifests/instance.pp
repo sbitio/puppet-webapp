@@ -131,7 +131,7 @@
 # See init.pp for details.
 #
 define webapp::instance(
-  $creation_mode  = 'local',
+  $creation_mode  = $webapp::creation_mode,
   $type           = undef,
 # Apache
   $vhost_ensure   = present,
