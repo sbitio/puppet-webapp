@@ -47,6 +47,10 @@
 #   document root is $docroot_prefix + $docroot_folder + $docroot_suffix.
 #   Default: "current".
 #
+# [*allow_override*]
+#   Array of options for AllowOverride directive.
+#   Default: ['None']
+#
 # [*www_ensure*]
 #   Wether to SEO redirect (permanent). Options:
 #    * present: Ensure $servername redirects to www.$servername.
@@ -141,6 +145,7 @@ define webapp::instance(
   $docroot_folder = undef,
   $docroot_prefix = '/var/www',
   $docroot_suffix = 'current',
+  $allow_override = ['None'],
   $www_ensure     = undef,
   $aliases        = undef,
   $redirects      = {},
@@ -187,6 +192,7 @@ define webapp::instance(
     }
 
     validate_re($servername, '^(?!www\.)', "The webapp::instance servername $servername must not start with www.")
+    validate_array($allow_override)
     validate_hash($redirects)
     validate_string($vhost_extra)
     validate_bool($logs_enable)
@@ -246,6 +252,7 @@ define webapp::instance(
       serveraliases   => $serveraliases,
       port            => $port,
       docroot         => $docroot,
+      override        => $allow_override,
       manage_docroot  => false,
       aliases         => $aliases,
       custom_fragment => $custom_fragment,
