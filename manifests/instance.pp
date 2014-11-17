@@ -289,8 +289,9 @@ define webapp::instance(
       ip     => '127.0.0.1',
       tag    => $tags,
     }
-    if !defined(Host[$real_hosts]) {
-      create_resources("${prefix}host", { "${real_hosts}" => $real_hosts_params } )
+    webapp::instance::create_host { $real_hosts :
+      prefix => $prefix,
+      params => $real_hosts_params,
     }
   }
 
@@ -340,6 +341,11 @@ define webapp::instance(
     if !defined(Solr::Instance[$solr_name]) {
       create_resources("${prefix}solr::instance", { "${solr_name}" => $solr_instance_params } )
     }
+  }
+}
+define webapp::instance::create_host($prefix, $params) {
+  if !defined(Host[$name]) {
+    create_resources("${prefix}host", { "${name}" => $params } )
   }
 }
 
