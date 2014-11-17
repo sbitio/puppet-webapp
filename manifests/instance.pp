@@ -206,11 +206,14 @@ define webapp::instance(
       absent  => absent,
       present => directory,
     }
+    $file_docroot_name = "${docroot_prefix}/${real_docroot_folder}"
     $file_docroot_params = {
       ensure => $ensure_docroot_parent,
       tag    => $tags,
     }
-    ensure_resource("${prefix}file", "${docroot_prefix}/${real_docroot_folder}", $file_docroot_params)
+    if !defined(File[$file_docroot_name]) {
+      create_resources("${prefix}file", { "${file_docroot_name}" => $file_docroot_params } )
+    }
 
     # Redirect example.com to www.example.com or the inverse, or nothing at all.
     case $www_ensure {
@@ -242,7 +245,9 @@ define webapp::instance(
         error_log       => $logs_enable,
         tag             => $tags,
       }
-      ensure_resource("${prefix}apache::vhost", $servername_source, $apache_vhost_redirector_params)
+      if !defined(Apache::Vhost[$servername_source]) {
+        create_resources("${prefix}apache::vhost", { "${servername_source}" => $apache_vhost_redirector_params } )
+      }
     }
 
     $redirects_fragment = template('webapp/apache/redirects.erb')
@@ -260,7 +265,9 @@ define webapp::instance(
       error_log       => $logs_enable,
       tag             => $tags,
     }
-    ensure_resource("${prefix}apache::vhost", $servername_real, $apache_vhost_params)
+    if !defined(Apache::Vhost[$servername_real]) {
+      create_resources("${prefix}apache::vhost", { "${servername_real}" => $apache_vhost_params } )
+    }
 
     if ($type == 'drupal') {
       $drush_alias = {
@@ -269,7 +276,9 @@ define webapp::instance(
         root   => $docroot,
         tag    => $tags,
       }
-      ensure_resource("${prefix}drush::alias", $name, $drush_alias)
+      if !defined(Drush::Alias[$name]) {
+        create_resources("${prefix}drush::alias", { "${name}" => $drush_alias } )
+      }
     }
 
     # Merge hosts and filter those with an *.
@@ -280,7 +289,9 @@ define webapp::instance(
       ip     => '127.0.0.1',
       tag    => $tags,
     }
-    ensure_resource("${prefix}host", $real_hosts, $real_hosts_params)
+    if !defined(Host[$real_hosts]) {
+      create_resources("${prefix}host", { "${real_hosts}" => $real_hosts_params } )
+    }
   }
 
 ###########################################################[ Load Balancer ]###
@@ -305,7 +316,9 @@ define webapp::instance(
       host     => '%',
       tag      => $tags,
     }
-    ensure_resource("${prefix}mysql::db", $db_name, $mysql_db_params)
+    if !defined(Mysql::Db[$db_name]) {
+      create_resources("${prefix}mysql::db", { "${db_name}" => $mysql_db_params } )
+    }
   }
 
 #####################################################################[ Solr ]###
@@ -324,7 +337,9 @@ define webapp::instance(
       war_src        => $solr_war,
       tag            => $tags,
     }
-    ensure_resource("${prefix}solr::instance", $solr_name, $solr_instance_params)
+    if !defined(Solr::Instance[$solr_name]) {
+      create_resources("${prefix}solr::instance", { "${solr_name}" => $solr_instance_params } )
+    }
   }
 }
 
