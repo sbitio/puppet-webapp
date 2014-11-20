@@ -135,40 +135,39 @@
 # See init.pp for details.
 #
 define webapp::instance(
-  $creation_mode  = $webapp::creation_mode,
-  $type           = undef,
+  $creation_mode   = $webapp::creation_mode,
+  $type            = undef,
 # Apache
-  $vhost_ensure   = present,
-  $servername     = $name,
-  $serveraliases  = [],
-  $port           = '80',
-  $docroot_folder = undef,
-  $docroot_prefix = '/var/www',
-  $docroot_suffix = 'current',
-  $allow_override = ['None'],
-  $www_ensure     = undef,
-  $aliases        = undef,
-  $redirects      = {},
-  $logs_enable    = true,
-  $vhost_extra    = '',
+  $vhost_ensure    = present,
+  $servername      = $name,
+  $serveraliases   = [],
+  $port            = '80',
+  $docroot_folder  = undef,
+  $docroot_prefix  = '/var/www',
+  $docroot_suffix  = 'current/htdocs',
+  $allow_override  = ['None'],
+  $www_ensure      = undef,
+  $aliases         = undef,
+  $redirects       = {},
+  $logs_enable     = true,
+  $vhost_extra     = '',
 
 # Mysql
-  $db_ensure      = present,
-  $db_name        = $name,
-  $db_user        = undef,
-  $db_pass        = undef,
+  $db_ensure       = present,
+  $db_name         = $name,
+  $db_user         = undef,
+  $db_pass         = undef,
 
 # Solr
-  $solr_ensure    = undef,
-  $solr_name      = $name,
-  $solr_version   = undef,
-  $solr_skel      = undef,
-  $solr_schema    = undef,
-  $solr_config    = undef,
-  $solr_protwords = undef,
-  $solr_war       = undef,
+  $solr_ensure     = undef,
+  $solr_name       = $name,
+  $solr_folder     = undef,
+  $solr_prefix     = undef,
+  $solr_suffix     = 'current/solr',
+  $solr_version    = undef,
+  $solr_initialize = false,
 
-  $tags           = [],
+  $tags            = [],
 ) {
 
   case $creation_mode {
@@ -328,16 +327,18 @@ define webapp::instance(
       fail("'${solr_ensure}' is not a valid value for solr_ensure. Valid values: ${ensure_options} and undef.")
     }
 
+    $real_solr_prefix = pick($solr_prefix,$docroot_prefix)
+    $real_solr_folder = pick($solr_folder, $solr_name)
+    $solr_directory   = "${real_solr_prefix}/${real_solr_folder}/${solr_suffix}"
+
     $solr_instance_params = {
-      ensure         => $solr_ensure,
-      version        => $solr_version,
-      skel_src       => $solr_skel,
-      schema_src     => $solr_schema,
-      solrconfig_src => $solr_config,
-      protwords_src  => $solr_protwords,
-      war_src        => $solr_war,
-      tag            => $tags,
+      ensure      => $solr_ensure,
+      directory   => $solr_directory,
+      version     => $solr_version,
+      initialize  => $solr_initialize,
+      tag         => $tags,
     }
+
     if !defined(Solr::Instance[$solr_name]) {
       create_resources("${prefix}solr::instance", { "${solr_name}" => $solr_instance_params } )
     }
