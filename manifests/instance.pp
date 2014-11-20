@@ -328,7 +328,7 @@ define webapp::instance(
     }
 
     $real_solr_prefix = pick($solr_prefix,$docroot_prefix)
-    $real_solr_folder = pick($solr_folder, $solr_name)
+    $real_solr_folder = pick($solr_folder, $servername)
     $solr_directory   = "${real_solr_prefix}/${real_solr_folder}/${solr_suffix}"
 
     $solr_instance_params = {
