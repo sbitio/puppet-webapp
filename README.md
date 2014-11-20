@@ -18,7 +18,7 @@ These are the modules Webapp works with:
 
  * [puppetlabs/apache](https://forge.puppetlabs.com/puppetlabs/apache)
  * [puppetlabs/mysql](https://forge.puppetlabs.com/puppetlabs/mysql)
- * [niteman/solr](https://github.com/niteman/puppet-solr)
+ * [sbitio/solr](https://github.com/sbitio/puppet-solr)
  * [jonhattan/drush](https://forge.puppetlabs.com/jonhattan/drush)
 
 
