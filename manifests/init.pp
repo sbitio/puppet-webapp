@@ -2,7 +2,7 @@ class webapp(
   $creation_mode     = 'local',
   $autorealize       = false,
   $instance_defaults = {},
-  $instances         = {},
+  $instances         = hiera_hash('webapp::instances'),
 ) {
 
   $creation_modes = [ 'local', 'exported' ]
