@@ -32,6 +32,12 @@
 # [*port*]
 #   Virtualhost listen port.
 #
+# [*ssl*]
+#   False or hash with any of the ssl keys supported by puppetlabs/apache's vhost,
+#   without 'ssl_' prefix. See https://github.com/puppetlabs/puppetlabs-apache/blob/master/manifests/vhost.pp
+#   for reference. Example: {'cert' => '/path/to/cert.pem', 'ca' => '/path/to/ca.pem'}
+#   Default: false.
+#
 # [*docroot_folder*]
 #   "App" specific part of the virtualhost document root. The full path of the
 #   document root is $docroot_prefix + $docroot_folder + $docroot_suffix.
@@ -142,6 +148,7 @@ define webapp::instance(
   $servername      = $name,
   $serveraliases   = [],
   $port            = '80',
+  $ssl             = false,
   $docroot_folder  = undef,
   $docroot_prefix  = '/var/www',
   $docroot_suffix  = 'current/htdocs',
@@ -214,6 +221,26 @@ define webapp::instance(
       create_resources("${prefix}file", { "${file_docroot_name}" => $file_docroot_params } )
     }
 
+    # SSL.
+    if is_hash($ssl) {
+      # Validate keys.
+      $ssl_keys = keys($ssl)
+      $ssl_keys_allowed = ['cert', 'key', 'chain', 'ca', 'crl_path', 'crl', 'crl_check', 'certs_dir',
+      'protocol', 'cipher', 'honorcipherorder', 'verify_client', 'verify_depth', 'options', 'proxyengine']
+      $ssl_keys_invalid = difference($ssl_keys, $ssl_keys_allowed)
+      if ! empty($ssl_keys_invalid) {
+        fail("Invalid ssl keys: ${ssl_keys_invalid}. Valid keys are: ${ssl_keys_allowed}.")
+      }
+
+      # Convert into a hash with the keys prefixes with 'ssl_', suitable for apache::vhost.
+      $ssl_keys_prefixed = prefix($ssl_keys, 'ssl_')
+      $ssl_hash = hash(zip($ssl_keys_prefixed, values($ssl)))
+      $ssl_params = merge($ssl_hash, {'ssl' => true})
+    }
+    else {
+      $ssl_params = {'ssl' => false}
+    }
+
     # Redirect example.com to www.example.com or the inverse, or nothing at all.
     case $www_ensure {
       present: {
@@ -245,7 +272,7 @@ define webapp::instance(
         tag             => $tags,
       }
       if !defined(Apache::Vhost[$servername_source]) {
-        create_resources("${prefix}apache::vhost", { "${servername_source}" => $apache_vhost_redirector_params } )
+        create_resources("${prefix}apache::vhost", { "${servername_source}" => $apache_vhost_redirector_params }, $ssl_params )
       }
     }
 
@@ -265,7 +292,7 @@ define webapp::instance(
       tag             => $tags,
     }
     if !defined(Apache::Vhost[$servername_real]) {
-      create_resources("${prefix}apache::vhost", { "${servername_real}" => $apache_vhost_params } )
+      create_resources("${prefix}apache::vhost", { "${servername_real}" => $apache_vhost_params }, $ssl_params )
     }
 
     if ($type == 'drupal') {
