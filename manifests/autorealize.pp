@@ -1,5 +1,7 @@
 class webapp::autorealize {
 
+  Cron <<| tag == $::fqdn and tag == webapp::instance |>>
+
   if defined('::apache') and defined(Class['::apache']) {
     Apache::Vhost  <<| tag == $::fqdn and tag == webapp::instance |>>
     Host           <<| tag == $::fqdn and tag == webapp::instance |>>
@@ -19,3 +21,4 @@ class webapp::autorealize {
   }
 
 }
+

@@ -97,6 +97,10 @@
 # [*vhost_extra*]
 #   String of directives to append to the VirtualHost.
 #
+# [*cron*]
+#  Hash with cron definitions. It directly creates 'cron' resource types.
+#  If 'tag' key is specified, it won't be assigned the general tags.
+#
 # [*db_ensure*]
 #   Whether this webapp has a database.
 #   Valid values: present, absent.
@@ -158,6 +162,9 @@ define webapp::instance(
   $redirects       = {},
   $logs_enable     = true,
   $vhost_extra     = '',
+
+# Cron
+  $cron            = {},
 
 # Mysql
   $db_ensure       = present,
@@ -321,7 +328,10 @@ define webapp::instance(
     }
   }
 
-###########################################################[ Load Balancer ]###
+####################################################################[ Cron ]###
+  if ! empty($cron) {
+    create_resources('cron', $cron, {'tag' => $tags})
+  }
 
 ################################################################[ Database ]###
   if $db_ensure != undef {

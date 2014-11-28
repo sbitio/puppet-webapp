@@ -95,6 +95,11 @@ webapp::instances :
       ExpiresActive  On
       ExpiresDefault "access plus 10 minutes"
     db_pass       : s3cr3t
+    cron          :
+      cron1 :
+        command : '/usr/local/bin/cronjob.sh'
+        hour    : 23
+        minute  : 12
 ```
 
 As shown webapp instances allows to define the virtualhost, database or
