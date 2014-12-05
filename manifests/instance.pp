@@ -97,6 +97,11 @@
 # [*vhost_extra*]
 #   String of directives to append to the VirtualHost.
 #
+# [*hosts_ensure*]
+#   Whether to create an entry in the hosts file for each domain.
+#   Valid values: present, absent, undef.
+#   Default: present.
+#
 # [*cron*]
 #  Hash with cron definitions. It directly creates 'cron' resource types.
 #  If 'tag' key is specified, it won't be assigned the general tags.
@@ -163,6 +168,9 @@ define webapp::instance(
   $redirects       = {},
   $logs_enable     = true,
   $vhost_extra     = '',
+
+# Hosts
+  $hosts_ensure    = present,
 
 # Cron
   $cron            = {},
@@ -315,17 +323,20 @@ define webapp::instance(
       }
     }
 
-    # Merge hosts and filter those with an *.
-    $hosts = flatten([$servername, $serveraliases])
-    $real_hosts = difference($hosts, grep($hosts, '\*'))
-    $real_hosts_params = {
-      ensure => $vhost_ensure,
-      ip     => '127.0.0.1',
-      tag    => $tags,
-    }
-    webapp::instance::create_host { $real_hosts :
-      prefix => $prefix,
-      params => $real_hosts_params,
+    if $hosts_ensure != undef {
+      # Merge hosts and filter those with an *.
+      $hosts = flatten([$servername, $serveraliases])
+      $real_hosts = difference($hosts, grep($hosts, '\*'))
+      $real_hosts_params = {
+        ensure => $hosts_ensure,
+        ip     => '127.0.0.1',
+        tag    => $tags,
+      }
+
+      webapp::instance::create_host { $real_hosts :
+        prefix => $prefix,
+        params => $real_hosts_params,
+      }
     }
   }
 
