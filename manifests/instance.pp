@@ -223,7 +223,9 @@ define webapp::instance(
     validate_string($vhost_extra)
     validate_bool($logs_enable)
     if $ip != undef {
-      validate_ip($ip)
+      if ! is_ip_address($ip) {
+        fail("'${ip}' is not a valid IP address.")
+      }
     }
 
     # Upon the deployment strategy the docroot may be a directory or a symlink.
