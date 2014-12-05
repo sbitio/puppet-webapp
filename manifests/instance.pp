@@ -307,6 +307,7 @@ define webapp::instance(
     $apache_vhost_params = {
       ensure          => $vhost_ensure,
       serveraliases   => $serveraliases,
+      ip              => $ip,
       port            => $port,
       docroot         => $docroot,
       override        => $allow_override,
