@@ -29,6 +29,9 @@
 # [*serveraliases*]
 #   Virtualhost server aliases. Array of domain names.
 #
+# [*ip*]
+#   Virtualhost listen ip.
+#
 # [*port*]
 #   Virtualhost listen port.
 #
@@ -157,6 +160,7 @@ define webapp::instance(
   $vhost_ensure    = present,
   $servername      = $name,
   $serveraliases   = [],
+  $ip              = undef,
   $port            = '80',
   $ssl             = false,
   $docroot_folder  = undef,
@@ -218,6 +222,9 @@ define webapp::instance(
     validate_hash($redirects)
     validate_string($vhost_extra)
     validate_bool($logs_enable)
+    if $ip != undef {
+      validate_ip($ip)
+    }
 
     # Upon the deployment strategy the docroot may be a directory or a symlink.
     # We won't ensure anything for the docroot. It is up to the deployment tool.
@@ -277,6 +284,7 @@ define webapp::instance(
     if $www_ensure != undef {
       $apache_vhost_redirector_params = {
         ensure          => $vhost_ensure,
+        ip              => $ip,
         port            => $port,
         docroot         => $docroot,
         manage_docroot  => false,
