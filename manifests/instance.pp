@@ -58,7 +58,7 @@
 #   Default: ['None']
 #
 # [*www_ensure*]
-#   Wether to SEO redirect (permanent). Options:
+#   Whether to SEO redirect (permanent). Options:
 #    * present: Ensure $servername redirects to www.$servername.
 #    * absent : Ensure www.$servername redirects to $servername.
 #    * undef  : Don't do any redirection.
@@ -103,7 +103,7 @@
 #
 # [*db_ensure*]
 #   Whether this webapp has a database.
-#   Valid values: present, absent.
+#   Valid values: present, absent, undef.
 #   Default: present.
 #
 # [*db_name*]
@@ -116,28 +116,29 @@
 #   User password. Defaults to $db_user.
 #
 # [*solr_ensure*]
-#   .
+#   Whether this webapp has a solr instance.
+#   Valid values: present, absent, undef.
+#   Default: undef.
 #
 # [*solr_name*]
-#   .
+#   Name of the solr instance folder. Defaults to $name.
+#
+# [*solr_folder*]
+#   Equivalent to $docroot_folder.
+#
+# [*solr_prefix*]
+#   Equivalent to $docroot_prefix.
+#
+# [*solr_suffix*]
+#   Equivalent to $docroot_suffix.
 #
 # [*solr_version*]
-#   .
+#   Solr version. This is one of the "available version".
+#   See sbitio/puppet-solr for detals.
 #
-# [*solr_skel*]
-#   .
-#
-# [*solr_schema*]
-#   .
-#
-# [*solr_config*]
-#   .
-#
-# [*solr_protwords*]
-#   .
-#
-# [*solr_war*]
-#   .
+# [*solr_initialize*]
+#   Boolean indicating whether to initialize the solr instance with the example config.
+#   Default: false.
 #
 # [*tags*]
 # Array of tags to tag the exported resources it will create.
@@ -364,8 +365,8 @@ define webapp::instance(
       fail("'${solr_ensure}' is not a valid value for solr_ensure. Valid values: ${ensure_options} and undef.")
     }
 
-    $real_solr_prefix = pick($solr_prefix,$docroot_prefix)
-    $real_solr_folder = pick($solr_folder, $servername)
+    $real_solr_prefix = pick($solr_prefix, $docroot_prefix)
+    $real_solr_folder = pick($solr_folder, $real_docroot_folder)
     $solr_directory   = "${real_solr_prefix}/${real_solr_folder}/${solr_suffix}"
 
     $solr_instance_params = {
@@ -381,6 +382,7 @@ define webapp::instance(
     }
   }
 }
+
 define webapp::instance::create_host($prefix, $params) {
   if !defined(Host[$name]) {
     create_resources("${prefix}host", { "${name}" => $params } )
