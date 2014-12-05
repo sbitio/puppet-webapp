@@ -261,9 +261,11 @@ define webapp::instance(
       $ssl_keys_prefixed = prefix($ssl_keys, 'ssl_')
       $ssl_hash = hash(zip($ssl_keys_prefixed, values($ssl)))
       $ssl_params = merge($ssl_hash, {'ssl' => true})
+      $vhost_name_suffix = '-ssl'
     }
     else {
       $ssl_params = {'ssl' => false}
+      $vhost_name_suffix = ''
     }
 
     # Redirect example.com to www.example.com or the inverse, or nothing at all.
@@ -286,6 +288,7 @@ define webapp::instance(
     if $www_ensure != undef {
       $apache_vhost_redirector_params = {
         ensure          => $vhost_ensure,
+        servername      => $servername_source,
         ip              => $ip,
         port            => $port,
         docroot         => $docroot,
@@ -297,8 +300,8 @@ define webapp::instance(
         error_log       => $logs_enable,
         tag             => $tags,
       }
-      if !defined(Apache::Vhost[$servername_source]) {
-        create_resources("${prefix}apache::vhost", { "${servername_source}" => $apache_vhost_redirector_params }, $ssl_params )
+      if !defined(Apache::Vhost["${servername_source}${vhost_name_suffix}"]) {
+        create_resources("${prefix}apache::vhost", { "${servername_source}${vhost_name_suffix}" => $apache_vhost_redirector_params }, $ssl_params )
       }
     }
 
@@ -306,7 +309,9 @@ define webapp::instance(
     $custom_fragment    = "${redirects_fragment}\n${vhost_extra}"
     $apache_vhost_params = {
       ensure          => $vhost_ensure,
+      servername      => $servername_real,
       serveraliases   => $serveraliases,
+      ip              => $ip,
       port            => $port,
       docroot         => $docroot,
       override        => $allow_override,
@@ -317,8 +322,8 @@ define webapp::instance(
       error_log       => $logs_enable,
       tag             => $tags,
     }
-    if !defined(Apache::Vhost[$servername_real]) {
-      create_resources("${prefix}apache::vhost", { "${servername_real}" => $apache_vhost_params }, $ssl_params )
+    if !defined(Apache::Vhost["${servername_real}${vhost_name_suffix}"]) {
+      create_resources("${prefix}apache::vhost", { "${servername_real}${vhost_name_suffix}" => $apache_vhost_params }, $ssl_params )
     }
 
     if ($type == 'drupal') {
