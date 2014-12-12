@@ -33,7 +33,7 @@
 #   Virtualhost listen ip.
 #
 # [*port*]
-#   Virtualhost listen port.
+#   Virtualhost listen port. Defaults to 80, or 443 if ssl config is provided.
 #
 # [*ssl*]
 #   False or hash with any of the ssl keys supported by puppetlabs/apache's vhost,
@@ -161,7 +161,7 @@ define webapp::instance(
   $servername      = $name,
   $serveraliases   = [],
   $ip              = undef,
-  $port            = '80',
+  $port            = undef,
   $ssl             = false,
   $docroot_folder  = undef,
   $docroot_prefix  = '/var/www',
@@ -248,6 +248,8 @@ define webapp::instance(
 
     # SSL.
     if is_hash($ssl) {
+      $port_real = pick($port, 443)
+
       # Validate keys.
       $ssl_keys = keys($ssl)
       $ssl_keys_allowed = ['cert', 'key', 'chain', 'ca', 'crl_path', 'crl', 'crl_check', 'certs_dir',
@@ -264,6 +266,7 @@ define webapp::instance(
       $vhost_name_suffix = '-ssl'
     }
     else {
+      $port_real = pick($port, 80)
       $ssl_params = {'ssl' => false}
       $vhost_name_suffix = ''
     }
@@ -290,7 +293,7 @@ define webapp::instance(
         ensure          => $vhost_ensure,
         servername      => $servername_source,
         ip              => $ip,
-        port            => $port,
+        port            => $port_real,
         docroot         => $docroot,
         manage_docroot  => false,
         redirect_source => '/',
@@ -312,7 +315,7 @@ define webapp::instance(
       servername      => $servername_real,
       serveraliases   => $serveraliases,
       ip              => $ip,
-      port            => $port,
+      port            => $port_real,
       docroot         => $docroot,
       override        => $allow_override,
       manage_docroot  => false,
