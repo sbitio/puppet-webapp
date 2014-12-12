@@ -297,7 +297,7 @@ define webapp::instance(
         docroot         => $docroot,
         manage_docroot  => false,
         redirect_source => '/',
-        redirect_dest   => "http://${servername_real}",
+        redirect_dest   => "http://${servername_real}/",
         redirect_status => 'permanent',
         access_log      => $logs_enable,
         error_log       => $logs_enable,
