@@ -33,10 +33,13 @@
 #   Virtualhost listen ip.
 #
 # [*port*]
-#   Virtualhost listen port. Defaults to 80, or 443 if ssl config is provided.
+#   Virtualhost listen port. Defaults to 80, or 443 if ssl_enable is true.
 #
 # [*ssl*]
-#   False or hash with any of the ssl keys supported by puppetlabs/apache's vhost,
+#   Whether to configure ssl. Defaults to false.
+#
+# [*ssl_options*]
+#   Hash with any of the ssl keys supported by puppetlabs/apache's vhost,
 #   without 'ssl_' prefix. See https://github.com/puppetlabs/puppetlabs-apache/blob/master/manifests/vhost.pp
 #   for reference. Example: {'cert' => '/path/to/cert.pem', 'ca' => '/path/to/ca.pem'}
 #   Default: false.
@@ -167,6 +170,7 @@ define webapp::instance(
   $ip              = undef,
   $port            = undef,
   $ssl             = false,
+  $ssl_options     = {},
   $docroot_folder  = undef,
   $docroot_prefix  = '/var/www',
   $docroot_suffix  = 'current/htdocs',
@@ -252,28 +256,30 @@ define webapp::instance(
     }
 
     # SSL.
-    if is_hash($ssl) {
+    validate_bool($ssl)
+    if $ssl {
       $port_real = pick($port, 443)
+      $vhost_name_suffix = '-ssl'
 
-      # Validate keys.
-      $ssl_keys = keys($ssl)
+      # Validate ssl options.
+      validate_hash($ssl_options)
+      $ssl_keys = keys($ssl_options)
       $ssl_keys_allowed = ['cert', 'key', 'chain', 'ca', 'crl_path', 'crl', 'crl_check', 'certs_dir',
       'protocol', 'cipher', 'honorcipherorder', 'verify_client', 'verify_depth', 'options', 'proxyengine']
       $ssl_keys_invalid = difference($ssl_keys, $ssl_keys_allowed)
-      if ! empty($ssl_keys_invalid) {
+      if !empty($ssl_keys_invalid) {
         fail("Invalid ssl keys: ${ssl_keys_invalid}. Valid keys are: ${ssl_keys_allowed}.")
       }
 
       # Convert into a hash with the keys prefixes with 'ssl_', suitable for apache::vhost.
       $ssl_keys_prefixed = prefix($ssl_keys, 'ssl_')
-      $ssl_hash = hash(zip($ssl_keys_prefixed, values($ssl)))
+      $ssl_hash = hash(zip($ssl_keys_prefixed, values($ssl_options)))
       $ssl_params = merge($ssl_hash, {'ssl' => true})
-      $vhost_name_suffix = '-ssl'
     }
     else {
       $port_real = pick($port, 80)
-      $ssl_params = {'ssl' => false}
       $vhost_name_suffix = ''
+      $ssl_params = {'ssl' => false}
     }
 
     # Redirect example.com to www.example.com or the inverse, or nothing at all.
