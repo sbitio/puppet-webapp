@@ -364,8 +364,8 @@ define webapp::instance(
   }
 
 ####################################################################[ Cron ]###
-  if ! empty($cron) {
-    create_resources('cron', $cron, {'tag' => $tags})
+  if !empty($cron) {
+    create_resources("${prefix}cron", $cron, {'tag' => $tags})
   }
 
 ################################################################[ Database ]###
