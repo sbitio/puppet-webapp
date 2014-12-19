@@ -1,5 +1,7 @@
 # Puppet Webapp
 
+[![puppet forge version](https://img.shields.io/puppetforge/v/sbitio/webapp.svg)](http://forge.puppetlabs.com/sbitio/webapp) [![last tag](https://img.shields.io/github/tag/sbitio/puppet-webapp.svg)](https://github.com/sbitio/puppet-webapp/tags)
+
 Wrapper to create resources that compound webapps.
 
 Resources can be declared as local resources or exported ones.
@@ -56,7 +58,7 @@ So you can define webapps in hiera as follows:
 
 ```yaml
 ---
-webapp::instance_defaults:
+webapp::instance_defaults :
   port: 80
   tags:
     - dbserver
@@ -127,5 +129,5 @@ Use contact form on http://sbit.io
 
 ## Support
 
-Please log tickets and issues on [GitHub](https://github.com/sbitmedia/puppet-webapp)
+Please log tickets and issues on [GitHub](https://github.com/sbitio/puppet-webapp)
 
