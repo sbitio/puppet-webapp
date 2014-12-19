@@ -95,7 +95,18 @@ webapp::instances :
       ExpiresActive  On
       ExpiresDefault "access plus 10 minutes"
     db_pass       : s3cr3t
-    cron          :
+    db_grants     :
+      'root@localhost/*.*':
+        options    : ['GRANT']
+        privileges : ['ALL']
+        table      : '*.*'
+        user       : 'root@localhost'
+      'reader@localhost/ex.*'
+        options    : ['GRANT']
+        privileges : ['SELECT']
+        table      : 'ex.*'
+        user       : 'reader@localhost'
+    cron           :
       cron1 :
         command : '/usr/local/bin/cronjob.sh'
         hour    : 23

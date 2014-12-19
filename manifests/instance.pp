@@ -123,6 +123,10 @@
 # [*db_pass*]
 #   User password. Defaults to $db_user.
 #
+# [*db_grants*]
+#  Hash of grant definitions. See https://github.com/puppetlabs/puppetlabs-mysql#mysql_grant
+#  for details.
+#
 # [*solr_ensure*]
 #   Whether this webapp has a solr instance.
 #   Valid values: present, absent, undef.
@@ -184,6 +188,7 @@ define webapp::instance(
   $db_name         = $name,
   $db_user         = undef,
   $db_pass         = undef,
+  $db_grants       = undef,
 
 # Solr
   $solr_ensure     = undef,
@@ -386,6 +391,12 @@ define webapp::instance(
     if !defined(Mysql::Db[$db_name]) {
       create_resources("${prefix}mysql::db", { "${db_name}" => $mysql_db_params } )
     }
+
+    if !empty($db_grants) {
+      validate_hash($db_grants)
+      create_resources("${prefix}mysql_grant", $db_grants, {'tag' => $tags} )
+    }
+
   }
 
 #####################################################################[ Solr ]###
