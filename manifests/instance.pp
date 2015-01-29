@@ -61,7 +61,11 @@
 #
 # [*allow_override*]
 #   Array of options for AllowOverride directive.
-#   Default: ['None']
+#   Default: undef (it will use upstream default value)
+#
+# [*vhost_options*]
+#   Array of options for Options directive.
+#   Default: undef (it will use upstream default value)
 #
 # [*www_ensure*]
 #   Whether to SEO redirect (permanent). Options:
@@ -174,7 +178,8 @@ define webapp::instance(
   $docroot_folder  = undef,
   $docroot_prefix  = '/var/www',
   $docroot_suffix  = 'current/htdocs',
-  $allow_override  = ['None'],
+  $allow_override  = undef,
+  $options         = undef,
   $www_ensure      = undef,
   $aliases         = undef,
   $redirects       = {},
@@ -227,7 +232,6 @@ define webapp::instance(
     }
 
     validate_re($servername, '^(?!www\.)', "The webapp::instance servername $servername must not start with www.")
-    validate_array($allow_override)
     validate_hash($redirects)
     validate_string($vhost_extra)
     validate_bool($logs_enable)
@@ -306,6 +310,7 @@ define webapp::instance(
         ip              => $ip,
         port            => $port_real,
         docroot         => $docroot,
+        options         => $options,
         manage_docroot  => false,
         redirect_source => '/',
         redirect_dest   => "http://${servername_real}/",
@@ -328,6 +333,7 @@ define webapp::instance(
       ip              => $ip,
       port            => $port_real,
       docroot         => $docroot,
+      options         => $options,
       override        => $allow_override,
       manage_docroot  => false,
       aliases         => $aliases,
