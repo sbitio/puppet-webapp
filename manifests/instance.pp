@@ -63,7 +63,7 @@
 #   Array of options for AllowOverride directive.
 #   Default: undef (it will use upstream default value)
 #
-# [*vhost_options*]
+# [*options*]
 #   Array of options for Options directive.
 #   Default: undef (it will use upstream default value)
 #
