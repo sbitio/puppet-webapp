@@ -387,10 +387,11 @@ define webapp::instance(
     }
 
     # Use defaults if no $db_user or $db_pass is given.
-    $real_db_user = pick($db_user, $db_name)
+    $real_db_name = regsubst($db_name, '[^0-9a-z_]', '_', 'IG')
+    $real_db_user = pick($db_user, $real_db_name)
     $real_db_pass = pick($db_pass, $real_db_user)
 
-    validate_slength($db_name, 64)
+    validate_slength($real_db_name, 64)
     validate_slength($real_db_user, 16)
 
     $mysql_db_params = {
@@ -401,7 +402,7 @@ define webapp::instance(
       tag      => $tags,
     }
     if !defined(Mysql::Db[$db_name]) {
-      create_resources("${prefix}mysql::db", { "${db_name}" => $mysql_db_params } )
+      create_resources("${prefix}mysql::db", { "${real_db_name}" => $mysql_db_params } )
     }
 
     if !empty($db_grants) {
