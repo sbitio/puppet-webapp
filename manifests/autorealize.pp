@@ -1,22 +1,36 @@
-class webapp::autorealize {
+class webapp::autorealize(
+  $cron   = true,
+  $apache = true,
+  $drush  = true,
+  $mysql  = true,
+  $solr   = true,
+) {
 
-  Cron <<| tag == $::fqdn and tag == webapp::instance |>>
+  validate_bool($cron)
+  validate_bool($apache)
+  validate_bool($drush)
+  validate_bool($mysql)
+  validate_bool($solr)
 
-  if defined('::apache') and defined(Class['::apache']) {
+  if $cron {
+    Cron           <<| tag == $::fqdn and tag == webapp::instance |>>
+  }
+
+  if $apache and defined('::apache') and defined(Class['::apache']) {
     Apache::Vhost  <<| tag == $::fqdn and tag == webapp::instance |>>
     Host           <<| tag == $::fqdn and tag == webapp::instance |>>
     File           <<| tag == $::fqdn and tag == webapp::instance |>>
   }
 
-  if defined('::drush') and defined(Class['::drush']) {
+  if $drush and defined('::drush') and defined(Class['::drush']) {
     Drush::Alias   <<| tag == $::fqdn and tag == webapp::instance |>>
   }
 
-  if defined('::mysql::server') and defined(Class['::mysql::server']) {
+  if $mysql and defined('::mysql::server') and defined(Class['::mysql::server']) {
     Mysql::Db      <<| tag == $::fqdn and tag == webapp::instance |>>
   }
 
-  if defined('::solr') and defined(Class['::solr']) {
+  if $solr and defined('::solr') and defined(Class['::solr']) {
     Solr::Instance <<| tag == $::fqdn and tag == webapp::instance |>>
   }
 
