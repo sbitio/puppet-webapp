@@ -1,6 +1,5 @@
 class webapp(
   $creation_mode     = 'local',
-  $autorealize       = false,
   $instance_defaults = {},
 ) {
 
@@ -13,8 +12,7 @@ class webapp(
 
   create_resources('::webapp::instance', $instances, $instance_defaults)
 
-  if ($creation_mode == 'exported' and $autorealize) {
-    require autorealize
-  }
+  require autorealize
+
 }
 
