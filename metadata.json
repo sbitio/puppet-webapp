@@ -1,16 +1,45 @@
 {
   "name": "sbitio-webapp",
   "version": "0.1.0",
-  "author": "sbitio",
+  "author": "SB IT Media, S.L.",
   "summary": "Wrapper to create resources that compound webapps",
-  "license": "MIT License",
+  "license": "MIT",
   "source": "http://github.com/sbitio/puppet-webapp",
   "project_page": "https://github.com/sbitio/puppet-webapp",
   "issues_url": "https://github.com/sbitio/puppet-webapp/issues",
+  "tags": ["apache", "mysql", "solr", "tomcat", "drupal", "drush", "virtualhost"],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [ "6", "7" ]
+    },
+    {
+      "operatingsystem": "Debian",
+      "operatingsystemrelease": [ "6", "7", "8" ]
+    },
+    {
+      "operatingsystem": "Redhat",
+      "operatingsystemrelease": [ "6", "7" ]
+    },
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [ "12.04", "14.04" ]
+    }
+  ],
   "dependencies": [
     {
       "name": "puppetlabs/stdlib",
       "version_requirement": ">= 1.0.0"
+    }
+  ],
+  "requirements": [
+    {
+      "name": "pe",
+      "version_requirement":"3.x"
+    },
+    {
+      "name": "puppet",
+      "version_requirement": "3.x"
     }
   ]
 }
