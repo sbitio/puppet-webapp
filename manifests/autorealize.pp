@@ -1,3 +1,5 @@
+# == Class: webapp::autorealize
+#
 class webapp::autorealize(
   $cron   = true,
   $apache = true,

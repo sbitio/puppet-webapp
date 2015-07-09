@@ -231,7 +231,7 @@ define webapp::instance(
       fail("'${vhost_ensure}' is not a valid value for vhost_ensure. Valid values: ${ensure_options}.")
     }
 
-    validate_re($servername, '^(?!www\.)', "The webapp::instance servername $servername must not start with www.")
+    validate_re($servername, '^(?!www\.)', "The webapp::instance servername ${servername} must not start with www.")
     validate_hash($redirects)
     validate_string($vhost_extra)
     validate_bool($logs_enable)
@@ -290,10 +290,10 @@ define webapp::instance(
     case $www_ensure {
       present: {
         $servername_source = $servername
-        $servername_real   = "www.$servername"
+        $servername_real   = "www.${servername}"
       }
       absent: {
-        $servername_source = "www.$servername"
+        $servername_source = "www.${servername}"
         $servername_real   = $servername
       }
       undef: {

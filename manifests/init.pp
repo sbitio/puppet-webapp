@@ -1,3 +1,5 @@
+# == Class: webapp
+#
 class webapp(
   $creation_mode     = 'local',
   $instance_defaults = {},
