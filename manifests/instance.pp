@@ -107,6 +107,10 @@
 # [*vhost_extra*]
 #   String of directives to append to the VirtualHost.
 #
+# [*vhost_extra_params*]
+#   Hash of params to pass directly to the main ::apache::vhost instance.
+#   Note: Params defined here take precedence over the ones computed by webapp.
+#
 # [*hosts_ensure*]
 #   Whether to create an entry in the hosts file for each domain.
 #   Valid values: present, absent, undef.
@@ -168,23 +172,24 @@ define webapp::instance(
   $creation_mode   = $webapp::creation_mode,
   $type            = undef,
 # Apache
-  $vhost_ensure    = present,
-  $servername      = $name,
-  $serveraliases   = [],
-  $ip              = undef,
-  $port            = undef,
-  $ssl             = false,
-  $ssl_options     = {},
-  $docroot_folder  = undef,
-  $docroot_prefix  = '/var/www',
-  $docroot_suffix  = 'current/htdocs',
-  $allow_override  = undef,
-  $options         = undef,
-  $www_ensure      = undef,
-  $aliases         = undef,
-  $redirects       = {},
-  $logs_enable     = true,
-  $vhost_extra     = '',
+  $vhost_ensure        = present,
+  $servername          = $name,
+  $serveraliases       = [],
+  $ip                  = undef,
+  $port                = undef,
+  $ssl                 = false,
+  $ssl_options         = {},
+  $docroot_folder      = undef,
+  $docroot_prefix      = '/var/www',
+  $docroot_suffix      = 'current/htdocs',
+  $allow_override      = undef,
+  $options             = undef,
+  $www_ensure          = undef,
+  $aliases             = undef,
+  $redirects           = {},
+  $logs_enable         = true,
+  $vhost_extra         = '',
+  $vhost_extra_params  = {},
 
 # Hosts
   $hosts_ensure    = present,
@@ -326,7 +331,7 @@ define webapp::instance(
 
     $redirects_fragment = template('webapp/apache/redirects.erb')
     $custom_fragment    = "${redirects_fragment}\n${vhost_extra}"
-    $apache_vhost_params = {
+    $apache_vhost_params = merge($vhost_extra_params, {
       ensure          => $vhost_ensure,
       servername      => $servername_real,
       serveraliases   => $serveraliases,
@@ -341,7 +346,7 @@ define webapp::instance(
       access_log      => $logs_enable,
       error_log       => $logs_enable,
       tag             => $tags,
-    }
+    })
     if !defined(Apache::Vhost["${servername_real}${vhost_name_suffix}"]) {
       create_resources("${prefix}apache::vhost", { "${servername_real}${vhost_name_suffix}" => $apache_vhost_params }, $ssl_params )
     }
