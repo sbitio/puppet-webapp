@@ -14,7 +14,7 @@ class webapp(
 
   create_resources('::webapp::instance', $instances, $instance_defaults)
 
-  require autorealize
+  require webapp::autorealize
 
 }
 
