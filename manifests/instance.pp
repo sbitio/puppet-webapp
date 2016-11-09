@@ -231,7 +231,7 @@ define webapp::instance(
   $ensure_options = [ present, absent ]
 
 ################################################################[ Web Head ]###
-  if $vhost_ensure != undef {
+  if !($vhost_ensure in [undef, 'undef']) {
     if ! ($vhost_ensure in $ensure_options) {
       fail("'${vhost_ensure}' is not a valid value for vhost_ensure. Valid values: ${ensure_options}.")
     }
@@ -363,7 +363,7 @@ define webapp::instance(
       }
     }
 
-    if $hosts_ensure != undef {
+    if !($hosts_ensure in [undef, 'undef']) {
       # Merge hosts and filter those with an *.
       $hosts = flatten([$servername, $serveraliases])
       $real_hosts = difference($hosts, grep($hosts, '\*'))
@@ -386,7 +386,7 @@ define webapp::instance(
   }
 
 ################################################################[ Database ]###
-  if $db_ensure != undef {
+  if !($db_ensure in [undef, 'undef']) {
     if ! ($db_ensure in $ensure_options) {
       fail("'${db_ensure}' is not a valid value for db_ensure. Valid values: ${ensure_options} and undef.")
     }
