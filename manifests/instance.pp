@@ -57,7 +57,7 @@
 # [*docroot_suffix*]
 #   Suffix of the virtualhost document root. The full path of the
 #   document root is $docroot_prefix + $docroot_folder + $docroot_suffix.
-#   Default: "current".
+#   Default: "current/htdocs".
 #
 # [*allow_override*]
 #   Array of options for AllowOverride directive.
