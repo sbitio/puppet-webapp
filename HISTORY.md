@@ -1,0 +1,13 @@
+## [0.2.0](https://github.com/sbitio/puppet-webapp/tree/0.1.0) (2017-03-26)
+[Full Changelog](https://github.com/sbitio/puppet-webapp/compare/0.1.0...0.2.0)
+
+- Add support for Options directive
+- Sanitize database name
+- Fine grained autorealization
+- Allow passing arbitrary params to ::apache::vhost directly
+- Enable providing undef values from Hiera as ''
+
+## [0.1.0](https://github.com/sbitio/puppet-webapp/tree/0.1.0) (2015-07-09)
+
+Initial release.
+
