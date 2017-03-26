@@ -406,7 +406,7 @@ define webapp::instance(
       host     => '%',
       tag      => $tags,
     }
-    if !defined(Mysql::Db[$db_name]) {
+    if !defined(Mysql::Db[$real_db_name]) {
       create_resources("${prefix}mysql::db", { "${real_db_name}" => $mysql_db_params } )
     }
 
