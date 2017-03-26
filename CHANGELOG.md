@@ -1,7 +1,18 @@
 # Change Log
 
-## [0.2.0](https://github.com/sbitio/puppet-webapp/tree/0.1.0) (2017-03-26)
+## [Unreleased](https://github.com/sbitio/puppet-webapp/tree/HEAD)
+
+[Full Changelog](https://github.com/sbitio/puppet-webapp/compare/0.2.0...HEAD)
+
+**Merged pull requests:**
+
+- Declare all resources as external [\#8](https://github.com/sbitio/puppet-webapp/pull/8) ([jonhattan](https://github.com/jonhattan))
+- Drop ssl support [\#6](https://github.com/sbitio/puppet-webapp/pull/6) ([jonhattan](https://github.com/jonhattan))
+
+## [0.2.0](https://github.com/sbitio/puppet-webapp/tree/0.2.0) (2017-03-26)
 [Full Changelog](https://github.com/sbitio/puppet-webapp/compare/0.1.0...0.2.0)
+
+**New features:**
 
 - Add support for Options directive
 - Sanitize database name
