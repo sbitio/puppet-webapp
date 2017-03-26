@@ -195,7 +195,7 @@ define webapp::instance(
   $solr_version    = undef,
   $solr_initialize = false,
 
-  $tags            = [],
+  $tags            = [$::fqdn],
 ) {
 
   $ensure_options = [ present, absent ]
@@ -225,13 +225,9 @@ define webapp::instance(
       absent  => absent,
       present => directory,
     }
-    $file_docroot_name = "${docroot_prefix}/${real_docroot_folder}"
-    $file_docroot_params = {
+    @@file { "${docroot_prefix}/${real_docroot_folder}":
       ensure => $ensure_docroot_parent,
       tag    => $tags,
-    }
-    if !defined(File[$file_docroot_name]) {
-      create_resources("@@file", { $file_docroot_name => $file_docroot_params } )
     }
 
     # Redirect example.com to www.example.com or the inverse, or nothing at all.
@@ -252,7 +248,7 @@ define webapp::instance(
       }
     }
     if $www_ensure != undef {
-      $apache_vhost_redirector_params = {
+      @@apache::vhost { $servername_source:
         ensure          => $vhost_ensure,
         servername      => $servername_source,
         ip              => $ip,
@@ -267,14 +263,11 @@ define webapp::instance(
         error_log       => $logs_enable,
         tag             => $tags,
       }
-      if !defined(Apache::Vhost[$servername_source]) {
-        create_resources("@@apache::vhost", { $servername_source => $apache_vhost_redirector_params })
-      }
     }
 
     $redirects_fragment = template('webapp/apache/redirects.erb')
     $custom_fragment    = "${redirects_fragment}\n${vhost_extra}"
-    $apache_vhost_params = merge($vhost_extra_params, {
+    @@apache::vhost { $servername_real:
       ensure          => $vhost_ensure,
       servername      => $servername_real,
       serveraliases   => $serveraliases,
@@ -289,20 +282,15 @@ define webapp::instance(
       access_log      => $logs_enable,
       error_log       => $logs_enable,
       tag             => $tags,
-    })
-    if !defined(Apache::Vhost[$servername_real]) {
-      create_resources('@@apache::vhost', { $servername_real => $apache_vhost_params })
+      *               => $vhost_extra_params,
     }
 
     if ($type == 'drupal') {
-      $drush_alias = {
+      @@drush::alias { $name:
         ensure => $vhost_ensure,
         uri    => $servername_real,
         root   => $docroot,
         tag    => $tags,
-      }
-      if !defined(Drush::Alias[$name]) {
-        create_resources('@@drush::alias', { $name => $drush_alias } )
       }
     }
 
@@ -310,21 +298,20 @@ define webapp::instance(
       # Merge hosts and filter those with an *.
       $hosts = flatten([$servername, $serveraliases])
       $real_hosts = difference($hosts, grep($hosts, '\*'))
-      $real_hosts_params = {
+      @@host { $real_hosts:
         ensure => $hosts_ensure,
         ip     => '127.0.0.1',
         tag    => $tags,
-      }
-
-      webapp::instance::create_host { $real_hosts :
-        params => $real_hosts_params,
       }
     }
   }
 
 ####################################################################[ Cron ]###
-  if !empty($cron) {
-    create_resources('@@cron', $cron, {'tag' => $tags})
+  $cron.each | String $name, Hash $params| {
+    @@cron { $name:
+      tag => $tags,
+      * => $params,
+    }
   }
 
 ################################################################[ Database ]###
@@ -341,20 +328,22 @@ define webapp::instance(
     validate_slength($real_db_name, 64)
     validate_slength($real_db_user, 16)
 
-    $mysql_db_params = {
+    @@mysql::db { $real_db_name:
       ensure   => $db_ensure,
       user     => $real_db_user,
       password => $real_db_pass,
       host     => '%',
       tag      => $tags,
     }
-    if !defined(Mysql::Db[$real_db_name]) {
-      create_resources('@@mysql::db', { $real_db_name => $mysql_db_params } )
-    }
 
     if !empty($db_grants) {
       validate_hash($db_grants)
-      create_resources('@@mysql_grant', $db_grants, {'tag' => $tags} )
+      $db_grants.each | String $name, Hash $params| {
+        @@mysql_grant { $name:
+          tag => $tags,
+          *   => $params,
+        }
+      }
     }
 
   }
@@ -369,23 +358,13 @@ define webapp::instance(
     $real_solr_folder = pick($solr_folder, $real_docroot_folder)
     $solr_directory   = "${real_solr_prefix}/${real_solr_folder}/${solr_suffix}"
 
-    $solr_instance_params = {
+    @@solr::instance { $solr_name:
       ensure      => $solr_ensure,
       directory   => $solr_directory,
       version     => $solr_version,
       initialize  => $solr_initialize,
       tag         => $tags,
     }
-
-    if !defined(Solr::Instance[$solr_name]) {
-      create_resources('@@solr::instance', { $solr_name => $solr_instance_params } )
-    }
-  }
-}
-
-define webapp::instance::create_host($params) {
-  if !defined(Host[$name]) {
-    create_resources('@@host', { $name => $params } )
   }
 }
 
