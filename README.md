@@ -4,7 +4,7 @@
 
 Wrapper to create resources that compound webapps.
 
-Resources can be declared as local resources or exported ones.
+Resources are declared exported, and realized on the same node by default.
 
 Exported resources are tagged with node's FQDN and realized in
 those nodes upon the presence of the classes that implements
@@ -36,20 +36,6 @@ Webapp instances must be created only on one node. It doesn't need to
 be one of the tag nodes. For example, use the one you consider
 the master.
 
-
-## Limitation
-
-The realization of exported resources is based on [defined()](https://docs.puppetlabs.com/references/latest/function.html#defined),
-so class `webapp` must be included after each related class.
-
-This is how we do it in `manifests/00_globals.pp`:
-
-```ruby
-hiera_include('classes')
-
-include ::webapp
-include ::ducktape
-```
 
 ## Example of use
 
