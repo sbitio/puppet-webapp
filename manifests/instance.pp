@@ -7,12 +7,6 @@
 #
 # === Parameters
 #
-# [*creation_mode*]
-#   Resources creation mode. Specify whether the resources will be created
-#   locally for this node or instead they're created as exported resources.
-#   Valid values: local, exported.
-#   Default: local.
-#
 # [*type*]
 #   Type of web application. Any value is supported. We only recognize: drupal.
 #   In case of drupal, this indicates a drush alias will be declared.
@@ -160,7 +154,6 @@
 # See init.pp for details.
 #
 define webapp::instance(
-  $creation_mode   = $webapp::creation_mode,
   $type            = undef,
 # Apache
   $vhost_ensure        = present,
@@ -205,18 +198,6 @@ define webapp::instance(
   $tags            = [],
 ) {
 
-  case $creation_mode {
-    'local': {
-      $prefix = ''
-    }
-    'exported': {
-      $prefix = '@@'
-    }
-    default: {
-      fail("'${creation_mode}' is not a valid value for creation_mode. Valid values: local, exported.")
-    }
-  }
-
   $ensure_options = [ present, absent ]
 
 ################################################################[ Web Head ]###
@@ -250,7 +231,7 @@ define webapp::instance(
       tag    => $tags,
     }
     if !defined(File[$file_docroot_name]) {
-      create_resources("${prefix}file", { "${file_docroot_name}" => $file_docroot_params } )
+      create_resources("@@file", { $file_docroot_name => $file_docroot_params } )
     }
 
     # Redirect example.com to www.example.com or the inverse, or nothing at all.
@@ -287,7 +268,7 @@ define webapp::instance(
         tag             => $tags,
       }
       if !defined(Apache::Vhost[$servername_source]) {
-        create_resources("${prefix}apache::vhost", { $servername_source => $apache_vhost_redirector_params })
+        create_resources("@@apache::vhost", { $servername_source => $apache_vhost_redirector_params })
       }
     }
 
@@ -310,7 +291,7 @@ define webapp::instance(
       tag             => $tags,
     })
     if !defined(Apache::Vhost[$servername_real]) {
-      create_resources("${prefix}apache::vhost", { $servername_real => $apache_vhost_params })
+      create_resources('@@apache::vhost', { $servername_real => $apache_vhost_params })
     }
 
     if ($type == 'drupal') {
@@ -321,7 +302,7 @@ define webapp::instance(
         tag    => $tags,
       }
       if !defined(Drush::Alias[$name]) {
-        create_resources("${prefix}drush::alias", { "${name}" => $drush_alias } )
+        create_resources('@@drush::alias', { $name => $drush_alias } )
       }
     }
 
@@ -336,7 +317,6 @@ define webapp::instance(
       }
 
       webapp::instance::create_host { $real_hosts :
-        prefix => $prefix,
         params => $real_hosts_params,
       }
     }
@@ -344,7 +324,7 @@ define webapp::instance(
 
 ####################################################################[ Cron ]###
   if !empty($cron) {
-    create_resources("${prefix}cron", $cron, {'tag' => $tags})
+    create_resources('@@cron', $cron, {'tag' => $tags})
   }
 
 ################################################################[ Database ]###
@@ -369,12 +349,12 @@ define webapp::instance(
       tag      => $tags,
     }
     if !defined(Mysql::Db[$real_db_name]) {
-      create_resources("${prefix}mysql::db", { "${real_db_name}" => $mysql_db_params } )
+      create_resources('@@mysql::db', { $real_db_name => $mysql_db_params } )
     }
 
     if !empty($db_grants) {
       validate_hash($db_grants)
-      create_resources("${prefix}mysql_grant", $db_grants, {'tag' => $tags} )
+      create_resources('@@mysql_grant', $db_grants, {'tag' => $tags} )
     }
 
   }
@@ -398,14 +378,14 @@ define webapp::instance(
     }
 
     if !defined(Solr::Instance[$solr_name]) {
-      create_resources("${prefix}solr::instance", { "${solr_name}" => $solr_instance_params } )
+      create_resources('@@solr::instance', { $solr_name => $solr_instance_params } )
     }
   }
 }
 
-define webapp::instance::create_host($prefix, $params) {
+define webapp::instance::create_host($params) {
   if !defined(Host[$name]) {
-    create_resources("${prefix}host", { "${name}" => $params } )
+    create_resources('@@host', { $name => $params } )
   }
 }
 
