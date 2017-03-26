@@ -1,13 +1,13 @@
 {
   "name": "sbitio-webapp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "SB IT Media, S.L.",
   "summary": "Wrapper to create resources that compound webapps",
   "license": "MIT",
   "source": "http://github.com/sbitio/puppet-webapp",
   "project_page": "https://github.com/sbitio/puppet-webapp",
   "issues_url": "https://github.com/sbitio/puppet-webapp/issues",
-  "tags": ["apache", "mysql", "solr", "tomcat", "drupal", "drush", "virtualhost"],
+  "tags": ["apache", "mysql", "solr", "tomcat", "drupal", "drush", "virtualhost", "webapp"],
   "operatingsystem_support": [
     {
       "operatingsystem": "CentOS",
