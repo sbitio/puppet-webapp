@@ -42,7 +42,7 @@
 # [*docroot_suffix*]
 #   Suffix of the virtualhost document root. The full path of the
 #   document root is $docroot_prefix + $docroot_folder + $docroot_suffix.
-#   Default: "current/htdocs".
+#   Default: "current/docroot".
 #
 # [*allow_override*]
 #   Array of options for AllowOverride directive.
@@ -163,7 +163,7 @@ define webapp::instance(
   $port                = undef,
   $docroot_folder      = undef,
   $docroot_prefix      = '/var/www',
-  $docroot_suffix      = 'current/htdocs',
+  $docroot_suffix      = 'current/docroot',
   $allow_override      = undef,
   $options             = undef,
   $www_ensure          = undef,
