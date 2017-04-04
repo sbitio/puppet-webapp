@@ -225,9 +225,12 @@ define webapp::instance(
       absent  => absent,
       present => directory,
     }
-    @@file { "${docroot_prefix}/${real_docroot_folder}":
-      ensure => $ensure_docroot_parent,
-      tag    => $tags,
+    $file_docroot_name = "${docroot_prefix}/${real_docroot_folder}"
+    if !defined(File[$file_docroot_name]) {
+      @@file { $file_docroot_name :
+        ensure => $ensure_docroot_parent,
+        tag    => $tags,
+      }
     }
 
     # Redirect example.com to www.example.com or the inverse, or nothing at all.
