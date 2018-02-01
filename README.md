@@ -45,21 +45,27 @@ So you can define webapps in hiera as follows:
 ```yaml
 ---
 webapp::instance_defaults :
-  port: 80
-  tags:
+  port         : 80
+  db_ensure    : present
+  hosts_ensure : present
+  vhost_ensure : present
+  tags         :
     - dbserver
     - webhead1
     - webhead2
 
 webapp::instances :
 
-# Create a webapp called `foobar.com`. This will be the servername and
-# database name, user and password.
+# Create a webapp called `foobar.com`.
+#  - Servername is by default the resource name: foobar.com
+#  - Database name is derived from the resource name: foobar_com
+#  - Database username and password are the database name.
   foobar.com      : {}
 
 # Create webapp `barbaz.com` without database.
+# Providing ~ or null as the value for db_ensure means undef.
   barbaz.com      :
-    db_ensure     : absent
+    db_ensure     : ~
 
 # Create webapp with name `ex`. This is the database name and user. Password
 # is provided explicitly. Servername is provided explicitly, along with
