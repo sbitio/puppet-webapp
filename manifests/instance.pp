@@ -14,7 +14,7 @@
 # [*vhost_ensure*]
 #   Indicate if a vhost must be present, absent or undefined.
 #   Valid values: present, absent, undef.
-#   Default: present.
+#   Default: undef.
 #
 # [*servername*]
 #   Virtualhost server name. It must be a domain name without www prefix.
@@ -99,7 +99,7 @@
 # [*hosts_ensure*]
 #   Whether to create an entry in the hosts file for each domain.
 #   Valid values: present, absent, undef.
-#   Default: present.
+#   Default: undef.
 #
 # [*cron*]
 #  Hash with cron definitions. It directly creates 'cron' resource types.
@@ -108,7 +108,7 @@
 # [*db_ensure*]
 #   Whether this webapp has a database.
 #   Valid values: present, absent, undef.
-#   Default: present.
+#   Default: undef.
 #
 # [*db_name*]
 #   Name of the database. Defaults to $name.
@@ -156,7 +156,7 @@
 define webapp::instance(
   $type            = undef,
 # Apache
-  $vhost_ensure        = present,
+  $vhost_ensure        = undef,
   $servername          = $name,
   $serveraliases       = [],
   $ip                  = undef,
@@ -174,13 +174,13 @@ define webapp::instance(
   $vhost_extra_params  = {},
 
 # Hosts
-  $hosts_ensure    = present,
+  $hosts_ensure    = undef,
 
 # Cron
   $cron            = {},
 
 # Mysql
-  $db_ensure       = present,
+  $db_ensure       = undef,
   $db_name         = $name,
   $db_user         = undef,
   $db_pass         = undef,
@@ -201,7 +201,7 @@ define webapp::instance(
   $ensure_options = [ present, absent ]
 
 ################################################################[ Web Head ]###
-  if !($vhost_ensure in [undef, '']) {
+  if $vhost_ensure {
     if ! ($vhost_ensure in $ensure_options) {
       fail("'${vhost_ensure}' is not a valid value for vhost_ensure. Valid values: ${ensure_options}.")
     }
@@ -297,7 +297,7 @@ define webapp::instance(
       }
     }
 
-    if !($hosts_ensure in [undef, '']) {
+    if $hosts_ensure {
       # Merge hosts and filter those with an *.
       $hosts = flatten([$servername, $serveraliases])
       $real_hosts = difference($hosts, grep($hosts, '\*'))
@@ -318,7 +318,7 @@ define webapp::instance(
   }
 
 ################################################################[ Database ]###
-  if !($db_ensure in [undef, '']) {
+  if $db_ensure {
     if ! ($db_ensure in $ensure_options) {
       fail("'${db_ensure}' is not a valid value for db_ensure. Valid values: ${ensure_options} and undef.")
     }
