@@ -208,12 +208,20 @@ define webapp::instance(
 
     validate_re($servername, '^(?!www\.)', "The webapp::instance servername ${servername} must not start with www.")
     validate_hash($redirects)
-    validate_string($vhost_extra)
     validate_bool($logs_enable)
     if $ip != undef {
       if ! is_ip_address($ip) {
         fail("'${ip}' is not a valid IP address.")
       }
+    }
+    if is_array($vhost_extra) {
+      $_vhost_extra = join(flatten($vhost_extra), "\n")
+    }
+    elsif is_string($vhost_extra) {
+      $_vhost_extra = $vhost_extra
+      }
+    else {
+      fail('$vhost_extra must be array or string.')
     }
 
     # Upon the deployment strategy the docroot may be a directory or a symlink.
@@ -269,7 +277,7 @@ define webapp::instance(
     }
 
     $redirects_fragment = template('webapp/apache/redirects.erb')
-    $custom_fragment    = "${redirects_fragment}\n${vhost_extra}"
+    $custom_fragment    = "${redirects_fragment}\n${_vhost_extra}"
     @@apache::vhost { $servername_real:
       ensure          => $vhost_ensure,
       servername      => $servername_real,
