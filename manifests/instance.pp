@@ -44,6 +44,16 @@
 #   document root is $docroot_prefix + $docroot_folder + $docroot_suffix.
 #   Default: "current/docroot".
 #
+# [*docroot_file_params*]
+#   Extra parameters for the docroot ancestor file resource.
+#   Yaml example:
+#
+#     docroot_file_params :
+#       owner : deploy
+#       group : deploy
+#       mode  : 2775
+#   Default: {}
+#
 # [*allow_override*]
 #   Array of options for AllowOverride directive.
 #   Default: undef (it will use upstream default value)
@@ -164,6 +174,7 @@ define webapp::instance(
   $docroot_folder      = undef,
   $docroot_prefix      = '/var/www',
   $docroot_suffix      = 'current/docroot',
+  $docroot_file_params = {},
   $allow_override      = undef,
   $options             = undef,
   $www_ensure          = undef,
@@ -235,9 +246,13 @@ define webapp::instance(
     }
     $file_docroot_name = "${docroot_prefix}/${real_docroot_folder}"
     if !defined(File[$file_docroot_name]) {
-      @@file { $file_docroot_name :
+      $docroot_file_defaults = {
         ensure => $ensure_docroot_parent,
         tag    => $tags,
+      }
+      $file_params = merge($docroot_file_defaults, $docroot_file_params)
+      @@file { $file_docroot_name :
+        * => $file_params,
       }
     }
 
