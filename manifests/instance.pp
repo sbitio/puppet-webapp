@@ -68,6 +68,12 @@
 #    * absent : Ensure www.$servername redirects to $servername.
 #    * undef  : Don't do any redirection.
 #
+# [*www_ensure_proto*]
+#   Protocol to use in SEO redirections. Options:
+#    * http
+#    * https
+#   Default: http
+#
 # [*aliases*]
 #   Virtualhost Alias directives. It accepts an array of hashes
 #   with 'alias' and 'path' keys.
@@ -178,6 +184,7 @@ define webapp::instance(
   $allow_override      = undef,
   $options             = undef,
   $www_ensure          = undef,
+  $www_ensure_proto    = 'http',
   $aliases             = undef,
   $redirects           = {},
   $logs_enable         = true,
@@ -220,6 +227,7 @@ define webapp::instance(
     validate_re($servername, '^(?!www\.)', "The webapp::instance servername ${servername} must not start with www.")
     validate_hash($redirects)
     validate_bool($logs_enable)
+    validate_re($www_ensure_proto, '^http(s)?$', "The webapp::instance ${name} www_ensure_proto must match http(s)?.")
     if $ip != undef {
       if ! is_ip_address($ip) {
         fail("'${ip}' is not a valid IP address.")
@@ -283,7 +291,7 @@ define webapp::instance(
         options         => $options,
         manage_docroot  => false,
         redirect_source => '/',
-        redirect_dest   => "http://${servername_real}/",
+        redirect_dest   => "${www_ensure_proto}://${servername_real}/",
         redirect_status => 'permanent',
         access_log      => $logs_enable,
         error_log       => $logs_enable,
