@@ -20,8 +20,6 @@ These are the modules Webapp works with:
 
  * [puppetlabs/apache](https://forge.puppetlabs.com/puppetlabs/apache)
  * [puppetlabs/mysql](https://forge.puppetlabs.com/puppetlabs/mysql)
- * [sbitio/solr](https://github.com/sbitio/puppet-solr)
- * [jonhattan/drush](https://forge.puppetlabs.com/jonhattan/drush)
 
 
 ## How it works
@@ -72,10 +70,7 @@ webapp::instances :
 # redirects and custom configuration for the virtual host.
 # `vhost_ensure : present` will enforce a redirect 301 from example.com
 # to www.example.com.
-# This webapp is declared of type `drupal`, so a drush alias (name `ex`) will
-# also be declared.
   ex              :
-    type          : drupal
     servername    : example.com
     www_ensure    : present
     serveraliases :

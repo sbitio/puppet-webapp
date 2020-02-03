@@ -55,10 +55,6 @@
   "tags": [
     "apache",
     "mysql",
-    "solr",
-    "tomcat",
-    "drupal",
-    "drush",
     "virtualhost",
     "webapp"
   ],

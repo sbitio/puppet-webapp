@@ -7,7 +7,7 @@
 #
 #
 # @param type
-#   Type of web application. Any value is supported. We only recognize: drupal.
+#   **Deprecated**. Type of web application. Any value is supported. We only recognize: drupal.
 #   In case of drupal, this indicates a drush alias will be declared.
 # @param vhost_ensure
 #   Indicate if a vhost must be present, absent or undefined.
@@ -107,20 +107,20 @@
 #  Hash of grant definitions. See https://github.com/puppetlabs/puppetlabs-mysql#mysql_grant
 #  for details.
 # @param solr_ensure
-#   Whether this webapp has a solr instance.
+#   **Deprecated**. Whether this webapp has a solr instance.
 # @param solr_name
-#   Name of the solr instance folder. Defaults to $name.
+#   **Deprecated**. Name of the solr instance folder. Defaults to $name.
 # @param solr_folder
-#   Equivalent to $docroot_folder.
+#   **Deprecated**. Equivalent to $docroot_folder.
 # @param solr_prefix
-#   Equivalent to $docroot_prefix.
+#   **Deprecated**. Equivalent to $docroot_prefix.
 # @param solr_suffix
-#   Equivalent to $docroot_suffix.
+#   **Deprecated**. Equivalent to $docroot_suffix.
 # @param solr_version
-#   Solr version. This is one of the "available version".
+#   **Deprecated**. Solr version. This is one of the "available version".
 #   See sbitio/puppet-solr for detals.
 # @param solr_initialize
-#   Boolean indicating whether to initialize the solr instance with the example config.
+#   **Deprecated**. Boolean indicating whether to initialize the solr instance with the example config.
 # @param tags
 #   Array of tags to tag the exported resources it will create.
 #   This tags are used to realize the resources on each node.
@@ -256,6 +256,9 @@ define webapp::instance(
       *               => $vhost_extra_params,
     }
 
+    if $type != undef {
+      warning('\$type support is deprecated and will be removed in future versions!')
+    }
     if ($type == 'drupal') {
       @@drush::alias { $name:
         ensure => $vhost_ensure,
@@ -316,6 +319,8 @@ define webapp::instance(
 
 #####################################################################[ Solr ]###
   if $solr_ensure != undef {
+    warning('Solr support is deprecated and will be removed in future versions!')
+
     $real_solr_prefix = pick($solr_prefix, $docroot_prefix)
     $real_solr_folder = pick($solr_folder, $real_docroot_folder)
     $solr_directory   = "${real_solr_prefix}/${real_solr_folder}/${solr_suffix}"
