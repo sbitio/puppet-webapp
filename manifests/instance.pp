@@ -344,7 +344,7 @@ define webapp::instance(
   $cron.each | String $name, Hash $params| {
     @@cron { $name:
       tag => $tags,
-      * => $params,
+      *   => $params,
     }
   }
 
@@ -393,11 +393,11 @@ define webapp::instance(
     $solr_directory   = "${real_solr_prefix}/${real_solr_folder}/${solr_suffix}"
 
     @@solr::instance { $solr_name:
-      ensure      => $solr_ensure,
-      directory   => $solr_directory,
-      version     => $solr_version,
-      initialize  => $solr_initialize,
-      tag         => $tags,
+      ensure     => $solr_ensure,
+      directory  => $solr_directory,
+      version    => $solr_version,
+      initialize => $solr_initialize,
+      tag        => $tags,
     }
   }
 }
