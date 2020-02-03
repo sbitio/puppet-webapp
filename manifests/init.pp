@@ -5,15 +5,15 @@
 #
 # @param instance_defaults
 #   Default values for instances declarations. See `webapp::instance` for details.
+# @param instances
+#   Instances to declare.
 #
 class webapp(
   Optional[Hash[String, Hash]] $instance_defaults = {},
+  Optional[Hash[String, Hash]] $instances = {},
 ) {
 
-  $instances = hiera_hash('webapp::instances', {})
-
   create_resources('::webapp::instance', $instances, $instance_defaults)
-
   require webapp::autorealize
 
 }
