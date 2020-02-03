@@ -1,7 +1,13 @@
-# == Class: webapp
+# webapp
+#
+# This class is the entry point to declare webapp resources and realize them on nodes.
+#
+#
+# @param instance_defaults
+#   Default values for instances declarations. See `webapp::instance` for details.
 #
 class webapp(
-  $instance_defaults = {},
+  Optional[Hash[String, Hash]] $instance_defaults = {},
 ) {
 
   $instances = hiera_hash('webapp::instances', {})
@@ -11,4 +17,3 @@ class webapp(
   require webapp::autorealize
 
 }
-

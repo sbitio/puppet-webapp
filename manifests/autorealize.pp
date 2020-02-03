@@ -1,18 +1,29 @@
-# == Class: webapp::autorealize
+# webapp::autorealize
+#
+# Realizes exported resources on nodes, based on the presence of the required class.
+#
+# A parameter flag for each resource type is provided to inhibit the realization of resources in some nodes.
+# For example you may want to realize cron resources only on a node.
+#
+#
+# @param cron
+#   Wether to realize cron resources.
+# @param apache
+#   Wether to realize apache resources.
+# @param drush
+#   Wether to realize drush resources.
+# @param mysql
+#   Wether to realize mysql resources.
+# @param solr
+#   Wether to realize solr resources.
 #
 class webapp::autorealize(
-  $cron   = true,
-  $apache = true,
-  $drush  = true,
-  $mysql  = true,
-  $solr   = true,
+  Boolean $cron   = true,
+  Boolean $apache = true,
+  Boolean $drush  = true,
+  Boolean $mysql  = true,
+  Boolean $solr   = true,
 ) {
-
-  validate_bool($cron)
-  validate_bool($apache)
-  validate_bool($drush)
-  validate_bool($mysql)
-  validate_bool($solr)
 
   if $cron {
     Cron           <<| tag == $::fqdn and tag == webapp::instance |>>
@@ -37,4 +48,3 @@ class webapp::autorealize(
   }
 
 }
-
