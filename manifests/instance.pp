@@ -216,6 +216,9 @@ define webapp::instance(
   $tags            = [$::fqdn],
 ) {
 
+  # Allow for list of lists of tags, for hiera facility.
+  $_tags = flatten($tags)
+
   $ensure_options = [ present, absent ]
 
 ################################################################[ Web Head ]###
@@ -238,7 +241,7 @@ define webapp::instance(
     }
     elsif is_string($vhost_extra) {
       $_vhost_extra = $vhost_extra
-      }
+    }
     else {
       fail('$vhost_extra must be array or string.')
     }
@@ -256,7 +259,7 @@ define webapp::instance(
     if !defined(File[$file_docroot_name]) {
       $docroot_file_defaults = {
         ensure => $ensure_docroot_parent,
-        tag    => $tags,
+        tag    => $_tags,
       }
       $file_params = merge($docroot_file_defaults, $docroot_file_params)
       @@file { $file_docroot_name :
@@ -295,7 +298,7 @@ define webapp::instance(
         redirect_status => 'permanent',
         access_log      => $logs_enable,
         error_log       => $logs_enable,
-        tag             => $tags,
+        tag             => $_tags,
       }
     }
 
@@ -315,7 +318,7 @@ define webapp::instance(
       custom_fragment => $custom_fragment,
       access_log      => $logs_enable,
       error_log       => $logs_enable,
-      tag             => $tags,
+      tag             => $_tags,
       *               => $vhost_extra_params,
     }
 
@@ -324,7 +327,7 @@ define webapp::instance(
         ensure => $vhost_ensure,
         uri    => $servername_real,
         root   => $docroot,
-        tag    => $tags,
+        tag    => $_tags,
       }
     }
 
@@ -335,7 +338,7 @@ define webapp::instance(
       @@host { $real_hosts:
         ensure => $hosts_ensure,
         ip     => '127.0.0.1',
-        tag    => $tags,
+        tag    => $_tags,
       }
     }
   }
@@ -343,7 +346,7 @@ define webapp::instance(
 ####################################################################[ Cron ]###
   $cron.each | String $name, Hash $params| {
     @@cron { $name:
-      tag => $tags,
+      tag => $_tags,
       * => $params,
     }
   }
@@ -367,14 +370,14 @@ define webapp::instance(
       user     => $real_db_user,
       password => $real_db_pass,
       host     => '%',
-      tag      => $tags,
+      tag      => $_tags,
     }
 
     if !empty($db_grants) {
       validate_hash($db_grants)
       $db_grants.each | String $name, Hash $params| {
         @@mysql_grant { $name:
-          tag => $tags,
+          tag => $_tags,
           *   => $params,
         }
       }
@@ -397,7 +400,7 @@ define webapp::instance(
       directory   => $solr_directory,
       version     => $solr_version,
       initialize  => $solr_initialize,
-      tag         => $tags,
+      tag         => $_tags,
     }
   }
 }
