@@ -30,6 +30,7 @@ class webapp::autorealize(
 
   if $mysql and defined('::mysql::server') and defined(Class['::mysql::server']) {
     Mysql::Db      <<| tag == $::fqdn and tag == webapp::instance |>>
+    Mysql_grant    <<| tag == $::fqdn and tag == webapp::instance |>>
   }
 
   if $solr and defined('::solr') and defined(Class['::solr']) {
