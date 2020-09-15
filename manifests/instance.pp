@@ -285,7 +285,7 @@ define webapp::instance(
       }
     }
     if $www_ensure != undef {
-      @@apache::vhost { $servername_source:
+      @@apache::vhost { "${name}-${servername_source}-${ip}-${port}":
         ensure          => $vhost_ensure,
         servername      => $servername_source,
         ip              => $ip,
@@ -304,7 +304,7 @@ define webapp::instance(
 
     $redirects_fragment = template('webapp/apache/redirects.erb')
     $custom_fragment    = "${redirects_fragment}\n${_vhost_extra}"
-    @@apache::vhost { $servername_real:
+    @@apache::vhost { "${name}-${servername_real}-${ip}-${port}":
       ensure          => $vhost_ensure,
       servername      => $servername_real,
       serveraliases   => $serveraliases,
@@ -333,10 +333,14 @@ define webapp::instance(
 
     if $hosts_ensure {
       # Merge hosts and filter those with an *.
-      $hosts = flatten([$servername, $serveraliases])
+      $hosts = $name ? {
+        $servername  => $serveraliases,
+        default      => flatten([$servername, $serveraliases]),
+      }
       $real_hosts = difference($hosts, grep($hosts, '\*'))
-      @@host { $real_hosts:
+      @@host { $name:
         ensure => $hosts_ensure,
+        host_aliases => $real_hosts,
         ip     => '127.0.0.1',
         tag    => $_tags,
       }
@@ -344,8 +348,8 @@ define webapp::instance(
   }
 
 ####################################################################[ Cron ]###
-  $cron.each | String $name, Hash $params| {
-    @@cron { $name:
+  $cron.each | String $_name, Hash $params| {
+    @@cron { "${name}-${_name}":
       tag => $_tags,
       * => $params,
     }
@@ -365,8 +369,9 @@ define webapp::instance(
     validate_slength($real_db_name, 64)
     validate_slength($real_db_user, 16)
 
-    @@mysql::db { $real_db_name:
+    @@mysql::db { "${name}-${real_db_name}":
       ensure   => $db_ensure,
+      dbname   => $real_db_name,
       user     => $real_db_user,
       password => $real_db_pass,
       host     => '%',
@@ -375,8 +380,9 @@ define webapp::instance(
 
     if !empty($db_grants) {
       validate_hash($db_grants)
-      $db_grants.each | String $name, Hash $params| {
-        @@mysql_grant { $name:
+      $db_grants.each | String $_name, Hash $params| {
+        @@mysql_grant { "${name}-${_name}":
+          name => $_name,
           tag => $_tags,
           *   => $params,
         }
