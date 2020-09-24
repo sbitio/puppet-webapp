@@ -92,12 +92,12 @@
 #   Yaml example:
 #
 #   redirects     :
-#     301         :
+#     '301'       :
 #       - source  : /rp1
 #         dest    : "http://example.com/rp1"
 #       - source  : /rp2
 #         dest    : "http://example.com/rp2"
-#     302         :
+#     '302'       :
 #       - source  : /rt
 #         dest    : "http://example.com/rt"
 #

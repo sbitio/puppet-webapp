@@ -82,7 +82,7 @@ webapp::instances :
       - example.net
       - www.example.net
     redirects     :
-      302         :
+      '302'       :
         - source  : /under-construction
           dest    : http://www.example.info/landing
     vhost_extra   : |
