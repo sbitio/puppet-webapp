@@ -339,10 +339,10 @@ define webapp::instance(
       }
       $real_hosts = difference($hosts, grep($hosts, '\*'))
       @@host { $name:
-        ensure => $hosts_ensure,
+        ensure       => $hosts_ensure,
         host_aliases => $real_hosts,
-        ip     => '127.0.0.1',
-        tag    => $_tags,
+        ip           => '127.0.0.1',
+        tag          => $_tags,
       }
     }
   }
@@ -351,7 +351,7 @@ define webapp::instance(
   $cron.each | String $_name, Hash $params| {
     @@cron { "${name}-${_name}":
       tag => $_tags,
-      * => $params,
+      *   => $params,
     }
   }
 
@@ -383,8 +383,8 @@ define webapp::instance(
       $db_grants.each | String $_name, Hash $params| {
         @@mysql_grant { "${name}-${_name}":
           name => $_name,
-          tag => $_tags,
-          *   => $params,
+          tag  => $_tags,
+          *    => $params,
         }
       }
     }
@@ -402,11 +402,11 @@ define webapp::instance(
     $solr_directory   = "${real_solr_prefix}/${real_solr_folder}/${solr_suffix}"
 
     @@solr::instance { $solr_name:
-      ensure      => $solr_ensure,
-      directory   => $solr_directory,
-      version     => $solr_version,
-      initialize  => $solr_initialize,
-      tag         => $_tags,
+      ensure     => $solr_ensure,
+      directory  => $solr_directory,
+      version    => $solr_version,
+      initialize => $solr_initialize,
+      tag        => $_tags,
     }
   }
 }
