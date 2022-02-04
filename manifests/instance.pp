@@ -265,6 +265,14 @@ define webapp::instance(
       @@file { $file_docroot_name :
         * => $file_params,
       }
+      $_docroot_suffix_parts = split($docroot_suffix, '/')
+      $_docroot_suffix_parts.each |$index, $part| {
+        $subdir = join($_docroot_suffix_parts[0, $index + 1], '/')
+        @@file { "${file_docroot_name}/${subdir}" :
+          * => $file_params,
+          replace => false,
+        }
+      }
     }
 
     # Redirect example.com to www.example.com or the inverse, or nothing at all.
@@ -410,4 +418,3 @@ define webapp::instance(
     }
   }
 }
-
