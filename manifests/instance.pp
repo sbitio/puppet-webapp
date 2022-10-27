@@ -185,7 +185,7 @@ define webapp::instance(
   $options             = undef,
   $www_ensure          = undef,
   $www_ensure_proto    = 'http',
-  $aliases             = undef,
+  $aliases             = [],
   $redirects           = {},
   $logs_enable         = true,
   $vhost_extra         = '',
