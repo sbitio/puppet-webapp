@@ -214,6 +214,8 @@ define webapp::instance(
   $solr_initialize = false,
 
   $tags            = [$::fqdn],
+
+  $hooks = [],
 ) {
 
   # Allow for list of lists of tags, for hiera facility.
@@ -417,4 +419,10 @@ define webapp::instance(
       tag        => $_tags,
     }
   }
+
+############################
+  $hooks.each |$hook| {
+    call($hook, $servername_real)
+  }
 }
+
