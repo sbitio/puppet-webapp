@@ -1,18 +1,12 @@
 # == Class: webapp::autorealize
 #
 class webapp::autorealize(
-  $cron   = true,
-  $apache = true,
-  $drush  = true,
-  $mysql  = true,
-  $solr   = true,
+  Boolean $cron   = true,
+  Boolean $apache = true,
+  Boolean $drush  = true,
+  Boolean $mysql  = true,
+  Boolean $solr   = true,
 ) {
-
-  validate_bool($cron)
-  validate_bool($apache)
-  validate_bool($drush)
-  validate_bool($mysql)
-  validate_bool($solr)
 
   if $cron {
     Cron           <<| tag == $::fqdn and tag == webapp::instance |>>

@@ -173,7 +173,7 @@ define webapp::instance(
   $type            = undef,
 # Apache
   $vhost_ensure        = undef,
-  $servername          = $name,
+  Pattern['^(?!www\.)'] $servername = $name,
   $serveraliases       = [],
   $ip                  = undef,
   $port                = undef,
@@ -184,12 +184,12 @@ define webapp::instance(
   $allow_override      = undef,
   $options             = undef,
   $www_ensure          = undef,
-  $www_ensure_proto    = 'http',
-  $aliases             = [],
-  $redirects           = {},
-  $logs_enable         = true,
-  $vhost_extra         = '',
-  $vhost_extra_params  = {},
+  Enum['http', 'https'] $www_ensure_proto = 'http',
+  Array $aliases           = [],
+  Hash $redirects          = {},
+  Boolean $logs_enable     = true,
+  Variant[Array, String] $vhost_extra     = '',
+  Hash $vhost_extra_params = {},
 
 # Hosts
   $hosts_ensure    = undef,
@@ -198,11 +198,11 @@ define webapp::instance(
   $cron            = {},
 
 # Mysql
-  $db_ensure       = undef,
-  $db_name         = $name,
-  $db_user         = undef,
-  $db_pass         = undef,
-  $db_grants       = undef,
+  $db_ensure                    = undef,
+  Optional[String[1, 64]] $db_name = undef,
+  Optional[String[1,16]] $db_user = undef,
+  $db_pass                      = undef,
+  Optional[Hash] $db_grants     = undef,
 
 # Solr
   $solr_ensure     = undef,
@@ -227,19 +227,15 @@ define webapp::instance(
       fail("'${vhost_ensure}' is not a valid value for vhost_ensure. Valid values: ${ensure_options}.")
     }
 
-    validate_re($servername, '^(?!www\.)', "The webapp::instance servername ${servername} must not start with www.")
-    validate_hash($redirects)
-    validate_bool($logs_enable)
-    validate_re($www_ensure_proto, '^http(s)?$', "The webapp::instance ${name} www_ensure_proto must match http(s)?.")
     if $ip != undef {
       if ! is_ip_address($ip) {
         fail("'${ip}' is not a valid IP address.")
       }
     }
-    if is_array($vhost_extra) {
+    if $vhost_extra =~ Array {
       $_vhost_extra = join(flatten($vhost_extra), "\n")
     }
-    elsif is_string($vhost_extra) {
+    elsif $vhost_extra =~String {
       $_vhost_extra = $vhost_extra
     }
     else {
@@ -369,13 +365,10 @@ define webapp::instance(
       fail("'${db_ensure}' is not a valid value for db_ensure. Valid values: ${ensure_options} and undef.")
     }
 
-    # Use defaults if no $db_user or $db_pass is given.
-    $real_db_name = regsubst($db_name, '[^0-9a-z_]', '_', 'IG')
+    # Use defaults if no $db_name, $db_user or $db_pass is given.
+    $real_db_name = regsubst(pick($db_name, $name), '[^0-9a-z_]', '_', 'IG')
     $real_db_user = pick($db_user, $real_db_name)
     $real_db_pass = pick($db_pass, $real_db_user)
-
-    validate_slength($real_db_name, 64)
-    validate_slength($real_db_user, 16)
 
     @@mysql::db { "${name}-${real_db_name}":
       ensure   => $db_ensure,
@@ -387,7 +380,6 @@ define webapp::instance(
     }
 
     if !empty($db_grants) {
-      validate_hash($db_grants)
       $db_grants.each | String $_name, Hash $params| {
         @@mysql_grant { "${name}-${_name}":
           name => $_name,
