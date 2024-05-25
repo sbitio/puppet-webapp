@@ -1,14 +1,15 @@
 # == Class: webapp
 #
 class webapp(
-  $instance_defaults = {},
+  Hash $instances,
+  Hash $instance_defaults,
 ) {
 
-  $instances = hiera_hash('webapp::instances', {})
-
-  create_resources('::webapp::instance', $instances, $instance_defaults)
+  $instances.each |String $name, Hash $params| {
+    webapp::instance {$name:
+      * => deep_merge($instance_defaults, $params),
+    }
+  }
 
   require webapp::autorealize
-
 }
-

@@ -1,1 +1,10 @@
---- {}
+---
+
+lookup_options:
+  webapp::instances:
+    merge:
+      strategy: deep
+      knockout_prefix: --KOP_
+
+webapp::instances: {}
+webapp::instance_defaults: {}
