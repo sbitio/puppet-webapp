@@ -1,12 +1,11 @@
 # == Class: webapp
 #
-class webapp(
+class webapp (
   Hash $instances,
   Hash $instance_defaults,
 ) {
-
   $instances.each |String $name, Hash $params| {
-    webapp::instance {$name:
+    webapp::instance { $name:
       * => deep_merge($instance_defaults, $params),
     }
   }

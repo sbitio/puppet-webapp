@@ -169,7 +169,7 @@
 # This tags are used to realize the resources on each node.
 # See init.pp for details.
 #
-define webapp::instance(
+define webapp::instance (
   $type            = undef,
 # Apache
   $vhost_ensure        = undef,
@@ -188,7 +188,7 @@ define webapp::instance(
   Array $aliases           = [],
   Hash $redirects          = {},
   Boolean $logs_enable     = true,
-  Variant[Array, String] $vhost_extra     = '',
+  Optional[Variant[Array, String]] $vhost_extra = undef,
   Hash $vhost_extra_params = {},
 
 # Hosts
@@ -213,13 +213,12 @@ define webapp::instance(
   $solr_version    = undef,
   $solr_initialize = false,
 
-  $tags            = [$::fqdn],
+  $tags            = [$facts['networking']['fqdn']],
 ) {
-
   # Allow for list of lists of tags, for hiera facility.
   $_tags = flatten($tags)
 
-  $ensure_options = [ present, absent ]
+  $ensure_options = [present, absent]
 
 ################################################################[ Web Head ]###
   if $vhost_ensure {
@@ -239,7 +238,7 @@ define webapp::instance(
       $_vhost_extra = $vhost_extra
     }
     else {
-      fail('$vhost_extra must be array or string.')
+      $_vhost_extra = ''
     }
 
     # Upon the deployment strategy the docroot may be a directory or a symlink.
@@ -248,8 +247,8 @@ define webapp::instance(
     $real_docroot_folder = pick($docroot_folder, $servername)
     $docroot = "${docroot_prefix}/${real_docroot_folder}/${docroot_suffix}"
     $ensure_docroot_parent = $vhost_ensure ? {
-      absent  => absent,
-      present => directory,
+      'absent'  => absent,
+      'present' => directory,
     }
     $file_docroot_name = "${docroot_prefix}/${real_docroot_folder}"
     if !defined(File[$file_docroot_name]) {
@@ -265,7 +264,7 @@ define webapp::instance(
       $_docroot_suffix_parts.each |$index, $part| {
         $subdir = join($_docroot_suffix_parts[0, $index + 1], '/')
         @@file { "${file_docroot_name}/${subdir}" :
-          * => $file_params,
+          *       => $file_params,
           replace => false,
         }
       }
@@ -273,11 +272,11 @@ define webapp::instance(
 
     # Redirect example.com to www.example.com or the inverse, or nothing at all.
     case $www_ensure {
-      present: {
+      'present': {
         $servername_source = $servername
         $servername_real   = "www.${servername}"
       }
-      absent: {
+      'absent': {
         $servername_source = "www.${servername}"
         $servername_real   = $servername
       }
@@ -388,7 +387,6 @@ define webapp::instance(
         }
       }
     }
-
   }
 
 #####################################################################[ Solr ]###
